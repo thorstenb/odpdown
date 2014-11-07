@@ -63,7 +63,7 @@ class ODFRenderer(mistune.Renderer):
                 self.page.append(self.textframe)
         self.textframe = odf_create_text_frame(
             unicode(text),
-            presentation_style=u'pr6',
+            presentation_style=u'pr4',
             size = (u'22cm', u'12cm'),
             position = (u'2cm', u'5cm'),
             presentation_class = u'outline')
@@ -84,7 +84,7 @@ class ODFRenderer(mistune.Renderer):
             self.page.append(
                 odf_create_text_frame(
                     lst,
-                    presentation_style=u'pr6',
+                    presentation_style=u'pr4',
                     size = (u'22cm', u'12cm'),
                     position = (u'2cm', u'5cm'),
                     presentation_class = u'outline'))
@@ -103,7 +103,7 @@ class ODFRenderer(mistune.Renderer):
         self.page.append(
             odf_create_text_frame(
                 unicode(text),
-                presentation_style=u'pr6',
+                presentation_style=u'pr3',
                 size = (u'20cm', u'3cm'),
                 position = (u'2cm', u'1cm'),
                 presentation_class = u'title'))
