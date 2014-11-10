@@ -45,8 +45,9 @@ from lpod.frame import odf_create_text_frame
 from lpod.draw_page import odf_create_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
-from lpod.paragraph import odf_create_paragraph, odf_span
+from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break
 from lpod.element import odf_create_element
+from lpod.link import odf_create_link
 
 # really quite an ugly hack. but unfortunately, mistune at a few
 # non-overridable places use '+' and '+=' to concatenate render method
@@ -157,7 +158,7 @@ class ODFRenderer(mistune.Renderer):
                     presentation_page_layout=u'AL3T1')
 
             frame = odf_create_text_frame(
-                self.page_content.get(),
+                self.wrap_spans(self.page_content.get()),
                 presentation_style=u'pr5',
                 size = (u'22cm', u'12cm'),
                 position = (u'2cm', u'5cm'),
@@ -170,9 +171,13 @@ class ODFRenderer(mistune.Renderer):
             self.document.get_body().append(self.page)
 
     def block_code(self, code, language=None):
-        self.page_content = ODFPartialTree(
-            [odf_create_paragraph(code,
-                                  style=u'ParagraphCodeStyle')])
+        para = odf_create_paragraph(style=u'ParagraphCodeStyle')
+        for line in code.splitlines():
+            span = odf_create_element('text:span')
+            span.set_text(unicode(line))
+            para.append(span)
+            para.append(odf_create_line_break())
+        self.page_content = ODFPartialTree([para])
         return self.page_content
 
     def header(self, text, level, raw=None):
@@ -237,7 +242,7 @@ class ODFRenderer(mistune.Renderer):
         return self.page_content
 
     def list(self, body, ordered=True):
-        lst = odf_create_list(style=u'L6' if ordered else u'L1')
+        lst = odf_create_list(style=u'L6' if ordered else u'L2')
         for elem in body.get():
             lst.append(elem)
         self.page_content = ODFPartialTree([lst])
