@@ -42,12 +42,32 @@ import sys
 import mistune
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame
-from lpod.draw_page import odf_create_draw_page
+from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link
+
+def wrap_spans(odf_elements):
+    '''For any homogeneous toplevel range of text:span elements, wrap them
+       into a paragraph'''
+    res = []
+    para = None
+    for elem in odf_elements:
+        if isinstance(elem, odf_span):
+            if para is None:
+                para = odf_create_paragraph()
+            para.append(elem)
+        else:
+            if para is not None:
+                res.append(para)
+                para = None
+            res.append(elem)
+    if para is not None:
+        res.append(para)
+    return res
+
 
 # really quite an ugly hack. but unfortunately, mistune at a few
 # non-overridable places use '+' and '+=' to concatenate render method
@@ -57,6 +77,31 @@ from lpod.link import odf_create_link
 class ODFPartialTree:
     def __init__(self, elements):
         self._elements = elements
+
+    def _add_child_elems(self, elems):
+        if (len(self._elements)
+              and isinstance(self._elements[-1], odf_draw_page)
+              and not isinstance(elems[0], odf_draw_page)):
+
+            elems = wrap_spans(elems)
+            # stick additional frame content into last existing one
+            for child in self._elements[-1].get_elements('descendant::draw:frame'):
+                if child.get_presentation_class() == u'outline':
+                    text_box = child.get_children()[0]
+                    for elem in elems:
+                        text_box.append(elem)
+                    return
+
+            # no outline frame found, create new one with elems content
+            self._elements[-1].append(
+                odf_create_text_frame(
+                    elems,
+                    presentation_style=u'pr5',
+                    size = (u'22cm', u'12cm'),
+                    position = (u'2cm', u'5cm'),
+                    presentation_class = u'outline'))
+        else:
+            self._elements += elems
 
     def _add_text(self, text):
         span = odf_create_element('text:span')
@@ -68,14 +113,14 @@ class ODFPartialTree:
         if isinstance(other, str):
             tmp._add_text(other)
         else:
-            tmp._elements += other._elements
+            tmp._add_child_elems(other._elements)
         return tmp
 
     def __iadd__(self, other):
         if isinstance(other, str):
             self._add_text(other)
         else:
-            self._elements += other._elements
+            self._add_child_elems(other._elements)
         return self
 
     def __copy__(self):
@@ -88,8 +133,6 @@ class ODFPartialTree:
 class ODFRenderer(mistune.Renderer):
     def __init__(self, document):
         self.document = document
-        self.page = None
-        self.page_content = ODFPartialTree([])
         self.add_style('text', u'TextEmphasisStyle',
                        [('text', {'font_style': u'italic'})])
         self.add_style('text', u'TextDoubleEmphasisStyle',
@@ -128,48 +171,6 @@ class ODFRenderer(mistune.Renderer):
             style.set_properties(properties=elem[1], area=elem[0])
         self.document.insert_style(style, automatic=True)
 
-    def wrap_spans(self, odf_elements):
-        '''For any homogeneous toplevel range of text:span elements, wrap them
-           into a paragraph'''
-        res = []
-        para = None
-        for elem in odf_elements:
-            if isinstance(elem, odf_span):
-                if para is None:
-                    para = odf_create_paragraph()
-                para.append(elem)
-            else:
-                if para is not None:
-                    res.append(para)
-                    para = None
-                res.append(elem)
-        if para is not None:
-            res.append(para)
-        return res
-
-    def finalize_page(self):
-        if len(self.page_content.get()):
-            if self.page is None:
-                # don't drop content just b/c there's no page
-                self.page = odf_create_draw_page(
-                    'page1',
-                    name='page1',
-                    master_page=u'Logo_20_Content',
-                    presentation_page_layout=u'AL3T1')
-
-            frame = odf_create_text_frame(
-                self.wrap_spans(self.page_content.get()),
-                presentation_style=u'pr5',
-                size = (u'22cm', u'12cm'),
-                position = (u'2cm', u'5cm'),
-                presentation_class = u'outline')
-            self.page.append(frame)
-
-    def finalize(self):
-        self.finalize_page()
-        if self.page is not None:
-            self.document.get_body().append(self.page)
-
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'ParagraphCodeStyle')
         for line in code.splitlines():
@@ -177,33 +178,32 @@ class ODFRenderer(mistune.Renderer):
             span.set_text(unicode(line))
             para.append(span)
             para.append(odf_create_line_break())
-        self.page_content = ODFPartialTree([para])
-        return self.page_content
+        return ODFPartialTree([para])
 
     def header(self, text, level, raw=None):
-        self.finalize()
+        page = None
         if level == 1:
-            self.page = odf_create_draw_page(
+            page = odf_create_draw_page(
                 'page1',
                 name=''.join(e.get_formatted_text() for e in text.get()),
                 master_page=u'Break',
                 presentation_page_layout=u'AL3T19')
-            self.page.append(
+            page.append(
                 odf_create_text_frame(
-                    self.wrap_spans(text.get()),
+                    wrap_spans(text.get()),
                     presentation_style=u'pr7',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'8cm'),
                     presentation_class = u'title'))
         elif level == 2:
-            self.page = odf_create_draw_page(
+            page = odf_create_draw_page(
                 'page1',
                 name=''.join(e.get_formatted_text() for e in text.get()),
                 master_page=u'Logo_20_Content',
                 presentation_page_layout=u'AL3T1')
-            self.page.append(
+            page.append(
                 odf_create_text_frame(
-                    self.wrap_spans(text.get()),
+                    wrap_spans(text.get()),
                     presentation_style=u'pr4',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'1cm'),
@@ -211,8 +211,7 @@ class ODFRenderer(mistune.Renderer):
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
 
-        self.page_content = ODFPartialTree([])
-        return self.page_content
+        return ODFPartialTree([page])
 
     def block_quote(self, text):
         para = odf_create_paragraph(style=u'ParagraphQuoteStyle')
@@ -231,22 +230,19 @@ class ODFRenderer(mistune.Renderer):
 
         para.set_span(u'TextQuoteStyle', regex=u'“')
         para.set_span(u'TextQuoteStyle', regex=u'”')
-        self.page_content = ODFPartialTree([para])
-        return self.page_content
+        return ODFPartialTree([para])
 
     def list_item(self, text):
         item = odf_create_list_item()
-        for elem in self.wrap_spans(text.get()):
+        for elem in wrap_spans(text.get()):
             item.append(elem)
-        self.page_content = ODFPartialTree([item])
-        return self.page_content
+        return ODFPartialTree([item])
 
     def list(self, body, ordered=True):
         lst = odf_create_list(style=u'L6' if ordered else u'L2')
         for elem in body.get():
             lst.append(elem)
-        self.page_content = ODFPartialTree([lst])
-        return self.page_content
+        return ODFPartialTree([lst])
 
     def paragraph(self, text):
         # yes, this seem broadly illogical. but most 'paragraphs'
@@ -255,8 +251,7 @@ class ODFRenderer(mistune.Renderer):
         span = odf_create_element('text:span')
         for elem in text.get():
             span.append(elem)
-        self.page_content = ODFPartialTree([span])
-        return self.page_content
+        return ODFPartialTree([span])
 
     def table(self, header, body):
         pass
@@ -272,13 +267,11 @@ class ODFRenderer(mistune.Renderer):
         if is_email:
             link = 'mailto:%s' % link
         lnk = odf_create_link(link, text=unicode(text))
-        self.page_content = ODFPartialTree([lnk])
-        return self.page_content
+        return ODFPartialTree([lnk])
 
     def link(self, link, title, content):
         lnk = odf_create_link(link, text=unicode(content), title=unicode(title))
-        self.page_content = ODFPartialTree([lnk])
-        return self.page_content
+        return ODFPartialTree([lnk])
 
     def codespan(self, text):
         span = odf_create_element('text:span')
@@ -288,31 +281,27 @@ class ODFRenderer(mistune.Renderer):
         else:
             for elem in text.get():
                 span.append(elem)
-        self.page_content = ODFPartialTree([span])
-        return self.page_content
+        return ODFPartialTree([span])
 
     def double_emphasis(self, text):
         span = odf_create_element('text:span')
         span.set_style('TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        self.page_content = ODFPartialTree([span])
-        return self.page_content
+        return ODFPartialTree([span])
 
     def emphasis(self, text):
         span = odf_create_element('text:span')
         span.set_style('TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        self.page_content = ODFPartialTree([span])
-        return self.page_content
+        return ODFPartialTree([span])
 
     def image(self, src, title, alt_text):
         pass
 
     def linebreak(self):
-        self.page_content = ODFPartialTree([odf_create_line_break()])
-        return self.page_content
+        return ODFPartialTree([odf_create_line_break()])
 
     def tag(self, html):
         pass
@@ -331,7 +320,7 @@ mkdown = mistune.Markdown(renderer=odf_renderer,
 
 markdown = open(mkdwn_in, 'r')
 
-mkdown.render(markdown.read())
-odf_renderer.finalize()
+for page in mkdown.render(markdown.read()).get():
+    presentation.get_body().append(page)
 
 presentation.save(target=odf_out, pretty=True)
