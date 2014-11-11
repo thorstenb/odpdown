@@ -40,6 +40,7 @@
 #
 import sys
 import mistune
+import argparse
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
@@ -309,18 +310,36 @@ class ODFRenderer(mistune.Renderer):
     def strikethrough(self, text):
         pass
 
-mkdwn_in = sys.argv[1]
-odf_in = sys.argv[2]
-odf_out = sys.argv[3]
+# main script
+parser = argparse.ArgumentParser(description='Convert markdown text into OpenDocument presentations')
+parser.add_argument('input_md',
+                    type=argparse.FileType('r'),
+                    help='Input markdown file')
+parser.add_argument('template_odp',
+                    type=argparse.FileType('r'),
+                    help='Input ODP template file')
+parser.add_argument('output_odp',
+                    type=argparse.FileType('w'),
+                    help='Output ODP file')
+parser.add_argument('-p', '--page', default=-1, type=int,
+                    help='Append markdown after given page. Negative numbers count from the'
+                         ' end of the slide stack')
+args = parser.parse_args()
+
+markdown = args.input_md
+odf_in = args.template_odp
+odf_out = args.output_odp
 presentation = odf_get_document(odf_in)
 
 odf_renderer = ODFRenderer(presentation)
 mkdown = mistune.Markdown(renderer=odf_renderer,
                           output_init=ODFPartialTree([]))
 
-markdown = open(mkdwn_in, 'r')
+doc_elems = presentation.get_body()
+if args.page < 0:
+    args.page = len(doc_elems.get_children()) + args.page
 
-for page in mkdown.render(markdown.read()).get():
-    presentation.get_body().append(page)
+for index, page in enumerate(mkdown.render(markdown.read()).get()):
+    doc_elems.insert(page, position=args.page + index)
 
 presentation.save(target=odf_out, pretty=True)
