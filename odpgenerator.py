@@ -172,6 +172,9 @@ class ODFRenderer(mistune.Renderer):
             style.set_properties(properties=elem[1], area=elem[0])
         self.document.insert_style(style, automatic=True)
 
+    def placeholder(self):
+        return ODFPartialTree([])
+
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'ParagraphCodeStyle')
         for line in code.splitlines():
@@ -332,8 +335,7 @@ odf_out = args.output_odp
 presentation = odf_get_document(odf_in)
 
 odf_renderer = ODFRenderer(presentation)
-mkdown = mistune.Markdown(renderer=odf_renderer,
-                          output_init=ODFPartialTree([]))
+mkdown = mistune.Markdown(renderer=odf_renderer)
 
 doc_elems = presentation.get_body()
 if args.page < 0:
