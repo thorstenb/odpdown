@@ -7,7 +7,7 @@ setup(name='odpgenerator',
       description='Generate OpenDocument Presentation (odp) files from markdown',
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
-      url='https://github.com/netsroth/odpgen.git',
+      url='https://github.com/thorstenb/odpgen.git',
       long_description=fread('README.md'),
       py_modules=['odpgenerator']
      )
