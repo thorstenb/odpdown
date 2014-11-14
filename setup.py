@@ -8,6 +8,6 @@ setup(name='odpgenerator',
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
       url='https://github.com/thorstenb/odpgen.git',
-      long_description=fread('README.md'),
+      long_description=open('README.md').read(),
       py_modules=['odpgenerator']
      )
