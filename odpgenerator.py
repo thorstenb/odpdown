@@ -97,7 +97,7 @@ class ODFPartialTree:
             self._elements[-1].append(
                 odf_create_text_frame(
                     elems,
-                    presentation_style=u'pr7',
+                    presentation_style=u'pr14',
                     size = (u'22cm', u'12cm'),
                     position = (u'2cm', u'5cm'),
                     presentation_class = u'outline'))
@@ -195,7 +195,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr9',
+                    presentation_style=u'pr6',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'8cm'),
                     presentation_class = u'title'))
@@ -208,7 +208,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr6',
+                    presentation_style=u'pr10',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'1cm'),
                     presentation_class = u'title'))
@@ -243,7 +243,7 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([item])
 
     def list(self, body, ordered=True):
-        lst = odf_create_list(style=u'L6' if ordered else u'L2')
+        lst = odf_create_list(style=u'L3' if ordered else u'L2')
         for elem in body.get():
             lst.append(elem)
         return ODFPartialTree([lst])
