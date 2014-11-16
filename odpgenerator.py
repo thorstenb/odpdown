@@ -194,11 +194,13 @@ class ODFRenderer(mistune.Renderer):
 
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'ParagraphCodeStyle')
-        for line in code.splitlines():
+        lines = code.splitlines()
+        for index, line in enumerate(lines):
             span = odf_create_element('text:span')
             span.set_text(unicode(line))
             para.append(span)
-            para.append(odf_create_line_break())
+            if index+1 < len(lines):
+                para.append(odf_create_line_break())
         return ODFPartialTree([para])
 
     def header(self, text, level, raw=None):
