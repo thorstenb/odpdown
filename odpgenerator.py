@@ -99,7 +99,7 @@ class ODFPartialTree:
                     elems,
                     presentation_style=u'pr14',
                     size = (u'22cm', u'12cm'),
-                    position = (u'2cm', u'5cm'),
+                    position = (u'2cm', u'4cm'),
                     presentation_class = u'outline'))
         else:
             self._elements += elems
@@ -146,9 +146,9 @@ class ODFRenderer(mistune.Renderer):
                        [('text', {'color': u'#18a303'}),
                         ('paragraph', {'margin_left': u'0.5cm',
                                        'margin_right': u'0.5cm',
-                                       'margin_top': u'0.5cm',
+                                       'margin_top': u'0.6cm',
                                        'margin_bottom': u'0.5cm',
-                                       'text_indent': u'-0.5cm'})])
+                                       'text_indent': u'-0.6cm'})])
         self.add_style('text', u'TextCodeStyle',
                        # TODO: neither font, nor font size work currently
                        [('text', {'size': u'110%',
@@ -159,8 +159,8 @@ class ODFRenderer(mistune.Renderer):
                                   'font_name': u'Courier', 'font_family': u'monospaced'}),
                         ('paragraph', {'margin_left': u'0.5cm',
                                        'margin_right': u'0.5cm',
-                                       'margin_top': u'0.5cm',
-                                       'margin_bottom': u'0.5cm',
+                                       'margin_top': u'0.6cm',
+                                       'margin_bottom': u'0.6cm',
                                        'text_indent': u'0cm'})])
 
     def add_style(self, style_family, style_name, properties):
@@ -210,7 +210,7 @@ class ODFRenderer(mistune.Renderer):
                     wrap_spans(text.get()),
                     presentation_style=u'pr10',
                     size = (u'20cm', u'3cm'),
-                    position = (u'2cm', u'1cm'),
+                    position = (u'2cm', u'0.5cm'),
                     presentation_class = u'title'))
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
