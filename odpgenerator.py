@@ -134,13 +134,30 @@ class ODFPartialTree:
 class ODFRenderer(mistune.Renderer):
     def __init__(self, document):
         self.document = document
+        self.document.insert_style(
+            odf_create_style (
+                'font-face',
+                name=u'Nimbus Mono L',
+                font_name=u'Nimbus Mono L',
+                font_family=u'Nimbus Mono L',
+                font_family_generic=u'modern',
+                font_pitch=u'fixed'),
+            automatic=True)
         self.add_style('text', u'TextEmphasisStyle',
                        [('text', {'font_style': u'italic'})])
         self.add_style('text', u'TextDoubleEmphasisStyle',
                        [('text', {'font_style': u'italic', 'font_weight': u'bold'})])
         self.add_style('text', u'TextQuoteStyle',
                        # TODO: font size increase does not work currently
-                       [('text', {'size': u'150%',
+                       # Bug in Impress:
+                       # schema has his - for _all_ occurences
+                       #  <attribute name="fo:font-size">
+                       #    <choice>
+                       #      <ref name="positiveLength"/>
+                       #      <ref name="percent"/>
+                       #    </choice>
+                       #  </attribute>
+                       [('text', {'size': u'200%',
                                   'color': u'#ccf4c6'})])
         self.add_style('paragraph', u'ParagraphQuoteStyle',
                        [('text', {'color': u'#18a303'}),
@@ -150,13 +167,13 @@ class ODFRenderer(mistune.Renderer):
                                        'margin_bottom': u'0.5cm',
                                        'text_indent': u'-0.6cm'})])
         self.add_style('text', u'TextCodeStyle',
-                       # TODO: neither font, nor font size work currently
+                       # TODO: font size increase does not work currently - bug in xmloff?
                        [('text', {'size': u'110%',
-                                  'font_name': u'Courier', 'font_family': u'monospaced'})])
+                                  'style:font_name': u'Nimbus Mono L'})])
         self.add_style('paragraph', u'ParagraphCodeStyle',
-                       # TODO: neither font, nor font size work currently
+                       # TODO: font size increase does not work currently - bug in xmloff?
                        [('text', {'size': u'110%',
-                                  'font_name': u'Courier', 'font_family': u'monospaced'}),
+                                  'style:font_name': u'Nimbus Mono L'}),
                         ('paragraph', {'margin_left': u'0.5cm',
                                        'margin_right': u'0.5cm',
                                        'margin_top': u'0.6cm',
