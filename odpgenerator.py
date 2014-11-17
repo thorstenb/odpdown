@@ -48,7 +48,7 @@ from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break
 from lpod.element import odf_create_element
-from lpod.link import odf_create_link
+from lpod.link import odf_create_link, odf_link
 
 def wrap_spans(odf_elements):
     '''For any homogeneous toplevel range of text:span elements, wrap them
@@ -56,7 +56,7 @@ def wrap_spans(odf_elements):
     res = []
     para = None
     for elem in odf_elements:
-        if isinstance(elem, odf_span):
+        if isinstance(elem, odf_span) or isinstance(elem, odf_link):
             if para is None:
                 para = odf_create_paragraph()
             para.append(elem)
@@ -262,7 +262,7 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([item])
 
     def list(self, body, ordered=True):
-        lst = odf_create_list(style=u'L3' if ordered else u'L2')
+        lst = odf_create_list(style=u'L2' if ordered else u'L4')
         for elem in body.get():
             lst.append(elem)
         return ODFPartialTree([lst])
