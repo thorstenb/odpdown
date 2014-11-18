@@ -363,4 +363,4 @@ if args.page < 0:
 for index, page in enumerate(mkdown.render(markdown.read()).get()):
     doc_elems.insert(page, position=args.page + index)
 
-presentation.save(target=odf_out, pretty=True)
+presentation.save(target=odf_out, pretty=False)
