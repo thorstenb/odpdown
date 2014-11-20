@@ -214,7 +214,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr6',
+                    presentation_style=u'pr10',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'8cm'),
                     presentation_class = u'title'))
@@ -227,7 +227,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr10',
+                    presentation_style=u'pr6',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'0.5cm'),
                     presentation_class = u'title'))
