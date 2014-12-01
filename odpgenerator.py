@@ -41,8 +41,12 @@
 import sys
 import mistune
 import argparse
+import urlparse
+from urllib import urlopen
+from mimetypes import guess_type
+from lpod import ODF_MANIFEST
 from lpod.document import odf_get_document
-from lpod.frame import odf_create_text_frame
+from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
@@ -84,23 +88,28 @@ class ODFPartialTree:
               and isinstance(self._elements[-1], odf_draw_page)
               and not isinstance(elems[0], odf_draw_page)):
 
-            elems = wrap_spans(elems)
             # stick additional frame content into last existing one
             for child in self._elements[-1].get_elements('descendant::draw:frame'):
                 if child.get_presentation_class() == u'outline':
                     text_box = child.get_children()[0]
-                    for elem in elems:
+                    for elem in wrap_spans(elems):
                         text_box.append(elem)
                     return
 
-            # no outline frame found, create new one with elems content
-            self._elements[-1].append(
-                odf_create_text_frame(
-                    elems,
-                    presentation_style=u'pr14',
-                    size = (u'22cm', u'12cm'),
-                    position = (u'2cm', u'4cm'),
-                    presentation_class = u'outline'))
+            # special-case image frames - append to pages literally!
+            if isinstance(elems[0], odf_frame):
+                for child in elems:
+                    self._elements[-1].append(child)
+            else:
+                # no outline frame found, create new one with elems content
+                elems = wrap_spans(elems)
+                self._elements[-1].append(
+                    odf_create_text_frame(
+                        elems,
+                        presentation_style=u'pr14',
+                        size = (u'22cm', u'12cm'),
+                        position = (u'2cm', u'4cm'),
+                        presentation_class = u'outline'))
         else:
             self._elements += elems
 
@@ -134,6 +143,7 @@ class ODFPartialTree:
 class ODFRenderer(mistune.Renderer):
     def __init__(self, document):
         self.document = document
+        self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.document.insert_style(
             odf_create_style (
                 'font-face',
@@ -268,13 +278,17 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([lst])
 
     def paragraph(self, text):
-        # yes, this seem broadly illogical. but most 'paragraphs'
-        # actually end up being parts of tables, quotes, list items
-        # etc, which might not always permit text:p
-        span = odf_create_element('text:span')
-        for elem in text.get():
-            span.append(elem)
-        return ODFPartialTree([span])
+        # images? insert as standalone frame, no inline img
+        if isinstance(text.get()[0], odf_frame):
+            return text
+        else:
+            # yes, this seem broadly illogical. but most 'paragraphs'
+            # actually end up being parts of tables, quotes, list items
+            # etc, which might not always permit text:p
+            span = odf_create_element('text:span')
+            for elem in text.get():
+                span.append(elem)
+            return ODFPartialTree([span])
 
     def table(self, header, body):
         pass
@@ -293,7 +307,9 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([lnk])
 
     def link(self, link, title, content):
-        lnk = odf_create_link(link, text=unicode(content), title=unicode(title))
+        lnk = odf_create_link(link,
+                              text=content.get()[0].get_text(),
+                              title=unicode(title))
         return ODFPartialTree([lnk])
 
     def codespan(self, text):
@@ -321,7 +337,23 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([span])
 
     def image(self, src, title, alt_text):
-        pass
+        # embed picture - TODO: optionally just link it
+        media_type = guess_type(src)
+        fragment_name = 'Pictures/' + urlparse.urlparse(src)[2].split('/')[-1]
+
+        frame = odf_create_image_frame(
+            fragment_name,
+            text=unicode(title),
+            size = (u'22cm', u'12cm'),
+            position = (u'2cm', u'4cm'),
+            presentation_class = u'graphic')
+        frame.set_svg_description(unicode(alt_text))
+
+        self.doc_manifest.add_full_path(fragment_name,
+                                        media_type[0])
+        self.document.set_part(fragment_name,
+                               urlopen(src).read())
+        return ODFPartialTree([frame])
 
     def linebreak(self):
         return ODFPartialTree([odf_create_line_break()])
