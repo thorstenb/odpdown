@@ -42,8 +42,10 @@ import sys
 import mistune
 import argparse
 import urlparse
+
 from urllib import urlopen
 from mimetypes import guess_type
+
 from lpod import ODF_MANIFEST
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
@@ -53,6 +55,82 @@ from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
+
+from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments import highlight
+from pygments.formatter import Formatter
+
+# from http://pygments.org/docs/formatterdevelopment/, BSD license
+class ODFFormatter(Formatter):
+    def __init__(self, **options):
+        Formatter.__init__(self, **options)
+
+        # create a dict of (start, end) tuples that wrap the
+        # value of a token so that we can use it in the format
+        # method later
+        self.styles = {}
+
+        # we iterate over the `_styles` attribute of a style item
+        # that contains the parsed style values.
+        for token, style in self.style:
+            start = end = ''
+            # a style item is a tuple in the following form:
+            # colors are readily specified in hex: 'RRGGBB'
+            if style['color']:
+                start += '<font color="#%s">' % style['color']
+                end = '</font>' + end
+            if style['bold']:
+                start += '<b>'
+                end = '</b>' + end
+            if style['italic']:
+                start += '<i>'
+                end = '</i>' + end
+            if style['underline']:
+                start += '<u>'
+                end = '</u>' + end
+            self.styles[token] = (start, end)
+
+    def get_style_defs(self, arg=''):
+        print 'sdfsdfsdf'
+        return arg+'\n'
+
+    def format(self, tokensource, outfile):
+        # lastval is a string we use for caching
+        # because it's possible that an lexer yields a number
+        # of consecutive tokens with the same token type.
+        # to minimize the size of the generated html markup we
+        # try to join the values of same-type tokens here
+        lastval = ''
+        lasttype = None
+
+        for ttype, value in tokensource:
+            # if the token type doesn't exist in the stylemap
+            # we try it with the parent of the token type
+            # eg: parent of Token.Literal.String.Double is
+            # Token.Literal.String
+            while ttype not in self.styles:
+                ttype = ttype.parent
+            if ttype == lasttype:
+                # the current token type is the same of the last
+                # iteration. cache it
+                lastval += value
+            else:
+                # not the same token as last iteration, but we
+                # have some data in the buffer. wrap it with the
+                # defined style and write it to the output file
+                if lastval:
+                    stylebegin, styleend = self.styles[lasttype]
+                    outfile.write(stylebegin + lastval + styleend)
+                # set lastval/lasttype to current values
+                lastval = value
+                lasttype = ttype
+
+        # if something is left in the buffer, write it to the
+        # output file, then close the opened <pre> tag
+        if lastval:
+            stylebegin, styleend = self.styles[lasttype]
+            outfile.write(stylebegin + lastval + styleend)
+
 
 def wrap_spans(odf_elements):
     '''For any homogeneous toplevel range of text:span elements, wrap them
