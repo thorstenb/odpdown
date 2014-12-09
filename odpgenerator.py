@@ -57,79 +57,18 @@ from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
 
 from pygments.lexers import get_lexer_by_name, guess_lexer
-from pygments import highlight
 from pygments.formatter import Formatter
 
-# from http://pygments.org/docs/formatterdevelopment/, BSD license
-class ODFFormatter(Formatter):
-    def __init__(self, **options):
-        Formatter.__init__(self, **options)
 
-        # create a dict of (start, end) tuples that wrap the
-        # value of a token so that we can use it in the format
-        # method later
-        self.styles = {}
-
-        # we iterate over the `_styles` attribute of a style item
-        # that contains the parsed style values.
-        for token, style in self.style:
-            start = end = ''
-            # a style item is a tuple in the following form:
-            # colors are readily specified in hex: 'RRGGBB'
-            if style['color']:
-                start += '<font color="#%s">' % style['color']
-                end = '</font>' + end
-            if style['bold']:
-                start += '<b>'
-                end = '</b>' + end
-            if style['italic']:
-                start += '<i>'
-                end = '</i>' + end
-            if style['underline']:
-                start += '<u>'
-                end = '</u>' + end
-            self.styles[token] = (start, end)
-
-    def get_style_defs(self, arg=''):
-        print 'sdfsdfsdf'
-        return arg+'\n'
-
-    def format(self, tokensource, outfile):
-        # lastval is a string we use for caching
-        # because it's possible that an lexer yields a number
-        # of consecutive tokens with the same token type.
-        # to minimize the size of the generated html markup we
-        # try to join the values of same-type tokens here
-        lastval = ''
-        lasttype = None
-
-        for ttype, value in tokensource:
-            # if the token type doesn't exist in the stylemap
-            # we try it with the parent of the token type
-            # eg: parent of Token.Literal.String.Double is
-            # Token.Literal.String
-            while ttype not in self.styles:
-                ttype = ttype.parent
-            if ttype == lasttype:
-                # the current token type is the same of the last
-                # iteration. cache it
-                lastval += value
-            else:
-                # not the same token as last iteration, but we
-                # have some data in the buffer. wrap it with the
-                # defined style and write it to the output file
-                if lastval:
-                    stylebegin, styleend = self.styles[lasttype]
-                    outfile.write(stylebegin + lastval + styleend)
-                # set lastval/lasttype to current values
-                lastval = value
-                lasttype = ttype
-
-        # if something is left in the buffer, write it to the
-        # output file, then close the opened <pre> tag
-        if lastval:
-            stylebegin, styleend = self.styles[lasttype]
-            outfile.write(stylebegin + lastval + styleend)
+# helper for ODFFormatter and ODFRenderer
+def add_style(document, style_family, style_name, properties):
+    """Insert global style into given document"""
+    style = odf_create_style (
+        style_family,
+        name=style_name)
+    for elem in properties:
+        style.set_properties(properties=elem[1], area=elem[0])
+    document.insert_style(style, automatic=True)
 
 
 def wrap_spans(odf_elements):
@@ -218,8 +157,142 @@ class ODFPartialTree:
         return self._elements
 
 
+# from http://pygments.org/docs/formatterdevelopment/, BSD license
+class ODFFormatter(Formatter):
+    def __init__(self, **options):
+        Formatter.__init__(self, **options)
+
+        # create a dict of (start, end) tuples that wrap the
+        # value of a token so that we can use it in the format
+        # method later
+        self.styles = {}
+
+        # we iterate over the `_styles` attribute of a style item
+        # that contains the parsed style values.
+        for token, style in self.style:
+            root_elem = None
+            curr_elem = None
+            # a style item is a tuple in the following form:
+            # colors are readily specified in hex: 'RRGGBB'
+            if style['color']:
+                root_elem = curr_elem = odf_create_element('text:span')
+                curr_elem.set_style( 'TColor%s' % style['color'] )
+
+            if style['bold']:
+                span = odf_create_element('text:span')
+                span.set_style( 'TBold' )
+                if root_elem is None:
+                    root_elem = curr_elem = span
+                else:
+                    curr_elem.append(span)
+                    curr_elem = span
+
+            if style['italic']:
+                span = odf_create_element('text:span')
+                span.set_style( 'TItalic' )
+                if root_elem is None:
+                    root_elem = curr_elem = span
+                else:
+                    curr_elem.append(span)
+                    curr_elem = span
+
+            if style['underline']:
+                span = odf_create_element('text:span')
+                span.set_style( 'TUnderline' )
+                if root_elem is None:
+                    root_elem = curr_elem = span
+                else:
+                    curr_elem.append(span)
+                    curr_elem = span
+
+            self.styles[token] = (root_elem, curr_elem)
+
+    def add_style_defs(self, document):
+        # we iterate over the `_styles` attribute of a style item
+        # that contains the parsed style values.
+        for token, style in self.style:
+            # a style item is a tuple in the following form:
+            # colors are readily specified in hex: 'RRGGBB'
+            if style['color']:
+                add_style(document, 'text', u'TColor%s' % style['color'],
+                          [('text', {'color': u'#'+style['color']})])
+            if style['bold']:
+                add_style(document, 'text', u'TBold',
+                          [('text', {'font_weight': u'bold'})])
+            if style['italic']:
+                add_style(document, 'text', u'TItalic',
+                          [('text', {'font_style': u'italic'})])
+            if style['underline']:
+                add_style(document, 'text', u'TUnderline',
+                          [('text', {'text_underline_style': u'solid',
+                                     'text_underline_width': u'auto',
+                                     'text_underline_color': u'font-color'})])
+
+    def format(self, tokensource, document):
+        result = []
+
+        # lastval is a string we use for caching
+        # because it's possible that an lexer yields a number
+        # of consecutive tokens with the same token type.
+        # to minimize the size of the generated html markup we
+        # try to join the values of same-type tokens here
+        lastval = ''
+        lasttype = None
+
+        for ttype, value in tokensource:
+            # if the token type doesn't exist in the stylemap
+            # we try it with the parent of the token type
+            # eg: parent of Token.Literal.String.Double is
+            # Token.Literal.String
+            while ttype not in self.styles:
+                ttype = ttype.parent
+            print value.replace(' ', '<space>').replace('\n', '<linefeed>')
+            if ttype == lasttype:
+                # the current token type is the same of the last
+                # iteration. cache it
+                lastval += value
+            else:
+                # not the same token as last iteration, but we
+                # have some data in the buffer. wrap it with the
+                # defined style and write it to the output file
+                if lastval:
+                    root_span, leaf_span = self.styles[lasttype]
+                    if root_span is None:
+                        span = odf_create_element('text:span')
+                        span.set_text(unicode(lastval))
+                        result.append(span)
+                    else:
+                        leaf_span.set_text(unicode(lastval))
+                        result.append( root_span.clone() )
+
+                    if '\n' in lastval:
+                        result.append(odf_create_line_break())
+
+                # set lastval/lasttype to current values
+                lastval = value
+                lasttype = ttype
+
+        # if something is left in the buffer, write it to the
+        # output file, then close the opened <pre> tag
+        if lastval:
+            root_span, leaf_span = self.styles[lasttype]
+            if root_span is None:
+                span = odf_create_element('text:span')
+                span.set_text(unicode(lastval))
+                result.append(span)
+            else:
+                leaf_span.set_text(unicode(lastval))
+                result.append( root_span.clone() )
+        else:
+            # kill last linebreak
+            if len(result) and result[:-1] == 'text:span':
+                result = result[0:-2]
+
+        return result
+
 class ODFRenderer(mistune.Renderer):
     def __init__(self, document):
+        self.formatter = ODFFormatter()
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.document.insert_style(
@@ -231,64 +304,58 @@ class ODFRenderer(mistune.Renderer):
                 font_family_generic=u'modern',
                 font_pitch=u'fixed'),
             automatic=True)
-        self.add_style('text', u'TextEmphasisStyle',
-                       [('text', {'font_style': u'italic'})])
-        self.add_style('text', u'TextDoubleEmphasisStyle',
-                       [('text', {'font_style': u'italic', 'font_weight': u'bold'})])
-        self.add_style('text', u'TextQuoteStyle',
-                       # TODO: font size increase does not work currently
-                       # Bug in Impress:
-                       # schema has his - for _all_ occurences
-                       #  <attribute name="fo:font-size">
-                       #    <choice>
-                       #      <ref name="positiveLength"/>
-                       #      <ref name="percent"/>
-                       #    </choice>
-                       #  </attribute>
-                       [('text', {'size': u'200%',
-                                  'color': u'#ccf4c6'})])
-        self.add_style('paragraph', u'ParagraphQuoteStyle',
-                       [('text', {'color': u'#18a303'}),
-                        ('paragraph', {'margin_left': u'0.5cm',
-                                       'margin_right': u'0.5cm',
-                                       'margin_top': u'0.6cm',
-                                       'margin_bottom': u'0.5cm',
-                                       'text_indent': u'-0.6cm'})])
-        self.add_style('text', u'TextCodeStyle',
-                       # TODO: font size increase does not work currently - bug in xmloff?
-                       [('text', {'size': u'110%',
-                                  'style:font_name': u'Nimbus Mono L'})])
-        self.add_style('paragraph', u'ParagraphCodeStyle',
-                       # TODO: font size increase does not work currently - bug in xmloff?
-                       [('text', {'size': u'110%',
-                                  'style:font_name': u'Nimbus Mono L'}),
-                        ('paragraph', {'margin_left': u'0.5cm',
-                                       'margin_right': u'0.5cm',
-                                       'margin_top': u'0.6cm',
-                                       'margin_bottom': u'0.6cm',
-                                       'text_indent': u'0cm'})])
-
-    def add_style(self, style_family, style_name, properties):
-        """Insert global style into document"""
-        style = odf_create_style (
-            style_family,
-            name=style_name)
-        for elem in properties:
-            style.set_properties(properties=elem[1], area=elem[0])
-        self.document.insert_style(style, automatic=True)
+        add_style(document, 'text', u'TextEmphasisStyle',
+                  [('text', {'font_style': u'italic'})])
+        add_style(document, 'text', u'TextDoubleEmphasisStyle',
+                  [('text', {'font_style': u'italic', 'font_weight': u'bold'})])
+        add_style(document, 'text', u'TextQuoteStyle',
+                  # TODO: font size increase does not work currently
+                  # Bug in Impress:
+                  # schema has his - for _all_ occurences
+                  #  <attribute name="fo:font-size">
+                  #    <choice>
+                  #      <ref name="positiveLength"/>
+                  #      <ref name="percent"/>
+                  #    </choice>
+                  #  </attribute>
+                  [('text', {'size': u'200%',
+                             'color': u'#ccf4c6'})])
+        add_style(document, 'paragraph', u'ParagraphQuoteStyle',
+                  [('text', {'color': u'#18a303'}),
+                   ('paragraph', {'margin_left': u'0.5cm',
+                                  'margin_right': u'0.5cm',
+                                  'margin_top': u'0.6cm',
+                                  'margin_bottom': u'0.5cm',
+                                  'text_indent': u'-0.6cm'})])
+        add_style(document, 'text', u'TextCodeStyle',
+                  # TODO: font size increase does not work currently - bug in xmloff?
+                  [('text', {'size': u'110%',
+                             'style:font_name': u'Nimbus Mono L'})])
+        add_style(document, 'paragraph', u'ParagraphCodeStyle',
+                  # TODO: font size increase does not work currently - bug in xmloff?
+                  [('text', {'size': u'110%',
+                             'style:font_name': u'Nimbus Mono L'}),
+                   ('paragraph', {'margin_left': u'0.5cm',
+                                  'margin_right': u'0.5cm',
+                                  'margin_top': u'0.6cm',
+                                  'margin_bottom': u'0.6cm',
+                                  'text_indent': u'0cm'})])
+        self.formatter.add_style_defs(document)
 
     def placeholder(self):
         return ODFPartialTree([])
 
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'ParagraphCodeStyle')
-        lines = code.splitlines()
-        for index, line in enumerate(lines):
-            span = odf_create_element('text:span')
-            span.set_text(unicode(line))
+
+        if language is not None:
+            lexer = get_lexer_by_name(language)
+        else:
+            lexer = guess_lexer(code)
+
+        for span in self.formatter.format(lexer.get_tokens(code),
+                                          self.document):
             para.append(span)
-            if index+1 < len(lines):
-                para.append(odf_create_line_break())
         return ODFPartialTree([para])
 
     def header(self, text, level, raw=None):
