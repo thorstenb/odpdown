@@ -22,18 +22,22 @@ Note: this is **important** as "blafasl" uses short hostnames.
 ## Some actual code
 
 ~~~ c++
-    ::basegfx::B2DPolyPolygon VeeWipe::operator () ( double t )    
-    {
-        ::basegfx::B2DPolygon poly;
-        poly.append( ::basegfx::B2DPoint( 0.0, -1.0 ) );
-        const double d = ::basegfx::pruneScaleValue( 2.0 * t );
-        poly.append( ::basegfx::B2DPoint( 0.0, d - 1.0 ) );
-        poly.append( ::basegfx::B2DPoint( 0.5, d ) );
-        poly.append( ::basegfx::B2DPoint( 1.0, d - 1.0 ) );
-        poly.append( ::basegfx::B2DPoint( 1.0, -1.0 ) );
-        poly.setClosed(true);
-        return ::basegfx::B2DPolyPolygon( poly );
-    }
+::basegfx::B2DPolyPolygon VeeWipe::operator () ( double t )    
+{
+    ::basegfx::B2DPolygon poly;
+    poly.append( ::basegfx::B2DPoint( 0.0, -1.0 ) );
+    const double d = ::basegfx::pruneScaleValue( 2.0 * t );
+    poly.append( ::basegfx::B2DPoint(
+           0.0, d - 1.0 ) );
+    poly.append( ::basegfx::B2DPoint(
+           0.5, d ) );
+    poly.append( ::basegfx::B2DPoint(
+           1.0, d - 1.0 ) );
+    poly.append( ::basegfx::B2DPoint(
+           1.0, -1.0 ) );
+    poly.setClosed(true);
+    return ::basegfx::B2DPolyPolygon( poly );
+}
 ~~~
 
 ## Test image

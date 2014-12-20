@@ -42,6 +42,7 @@ import sys
 import mistune
 import argparse
 import urlparse
+import re
 
 from urllib import urlopen
 from mimetypes import guess_type
@@ -52,7 +53,7 @@ from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
-from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break
+from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break, odf_create_spaces
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
 
@@ -101,6 +102,7 @@ class ODFPartialTree:
         self._elements = elements
 
     def _add_child_elems(self, elems):
+        # TODO: kill this ugly typeswitching
         if (len(self._elements)
               and isinstance(self._elements[-1], odf_draw_page)
               and not isinstance(elems[0], odf_draw_page)):
@@ -161,6 +163,9 @@ class ODFPartialTree:
 class ODFFormatter(Formatter):
     def __init__(self, **options):
         Formatter.__init__(self, **options)
+
+        # buffer regex for tab/space splitting for block code
+        self.whitespace_re = re.compile(u'( {2,}|\t)', re.UNICODE)
 
         # create a dict of (start, end) tuples that wrap the
         # value of a token so that we can use it in the format
@@ -246,7 +251,6 @@ class ODFFormatter(Formatter):
             # Token.Literal.String
             while ttype not in self.styles:
                 ttype = ttype.parent
-            print value.replace(' ', '<space>').replace('\n', '<linefeed>')
             if ttype == lasttype:
                 # the current token type is the same of the last
                 # iteration. cache it
@@ -257,16 +261,33 @@ class ODFFormatter(Formatter):
                 # defined style and write it to the output file
                 if lastval:
                     root_span, leaf_span = self.styles[lasttype]
-                    if root_span is None:
-                        span = odf_create_element('text:span')
-                        span.set_text(unicode(lastval))
-                        result.append(span)
-                    else:
-                        leaf_span.set_text(unicode(lastval))
-                        result.append( root_span.clone() )
 
-                    if '\n' in lastval:
-                        result.append(odf_create_line_break())
+                    # white space and linefeeds: special handling
+                    # needed in ODF
+                    lines = lastval.split('\n')
+                    for index, line in enumerate(lines):
+                        # for every line
+                        for part in self.whitespace_re.split(line):
+                            # split off tabulators and whitespace
+                            if ' ' in part:
+                                # multiple spaces in ODF need markup
+                                result.append(
+                                    odf_create_spaces(len(part)))
+                            elif '\t' in part:
+                                # insert an actual tab
+                                result.append(
+                                    odf_create_tabulation())
+                            else:
+                                if root_span is None:
+                                    span = odf_create_element('text:span')
+                                    span.set_text(unicode(part))
+                                    result.append(span)
+                                else:
+                                    leaf_span.set_text(unicode(part))
+                                    result.append( root_span.clone() )
+                        # for all but the last line: add linebreak
+                        if index < len(lines)-1:
+                            result.append(odf_create_line_break())
 
                 # set lastval/lasttype to current values
                 lastval = value
