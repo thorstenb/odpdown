@@ -313,7 +313,7 @@ class ODFFormatter(Formatter):
 
 class ODFRenderer(mistune.Renderer):
     def __init__(self, document):
-        self.formatter = ODFFormatter()
+        self.formatter = ODFFormatter(style='colorful')
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.document.insert_style(
