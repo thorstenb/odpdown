@@ -124,7 +124,7 @@ class ODFPartialTree:
                 self._elements[-1].append(
                     odf_create_text_frame(
                         elems,
-                        presentation_style=u'pr14',
+                        presentation_style=u'OutlineText',
                         size = (u'22cm', u'12cm'),
                         position = (u'2cm', u'4cm'),
                         presentation_class = u'outline'))
@@ -340,6 +340,9 @@ class ODFRenderer(mistune.Renderer):
                   #  </attribute>
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
+        add_style(document, 'presentation', u'OutlineText',
+                  [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
+                  'OutlineText', u'pr14')
         add_style(document, 'paragraph', u'ParagraphQuoteStyle',
                   [('text', {'color': u'#18a303'}),
                    ('paragraph', {'margin_left': u'0.5cm',
