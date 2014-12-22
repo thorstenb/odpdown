@@ -14,6 +14,7 @@ Note: this is **important** as "blafasl" uses short hostnames.
 
 * Install this and that, and add the wombat ISO on top
 * Add test user to each item - `$ blafasl` for example
+  * sub item
 
 ~~~ bash
       # rm -rf /
@@ -22,7 +23,7 @@ Note: this is **important** as "blafasl" uses short hostnames.
 ## Some actual code
 
 ~~~ c++
-::basegfx::B2DPolyPolygon VeeWipe::operator () ( double t )    
+::basegfx::B2DPolyPolygon VeeWipe::operator () ( double t )
 {
     ::basegfx::B2DPolygon poly;
     poly.append( ::basegfx::B2DPoint( 0.0, -1.0 ) );

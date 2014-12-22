@@ -96,6 +96,7 @@ def test_items_page():
 
 * this is item one
 * this is item two
+  * and a subitem
 '''.strip()
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
@@ -103,9 +104,12 @@ def test_items_page():
     assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
             'Heading')
     items = odf.get()[0].get_elements('descendant::text:list-item')
-    assert len(items) == 2
+    assert len(items) == 3
     assert items[0].get_elements('descendant::text:span')[0].get_text() == 'this is item one'
     assert items[1].get_elements('descendant::text:span')[0].get_text() == 'this is item two'
+    subitems = items[1].get_elements('descendant::text:list-item')
+    assert len(subitems) == 1
+    assert subitems[0].get_elements('descendant::text:span')[0].get_text() == 'and a subitem'
 
 @with_setup(setup)
 def test_code_block():
