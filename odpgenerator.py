@@ -62,11 +62,10 @@ from pygments.formatter import Formatter
 
 
 # helper for ODFFormatter and ODFRenderer
-def add_style(document, style_family, style_name, properties):
+def add_style(document, style_family, style_name, properties, display_name=None, parent=None):
     """Insert global style into given document"""
-    style = odf_create_style (
-        style_family,
-        name=style_name)
+    style = odf_create_style(style_family, style_name,
+                             display_name, parent)
     for elem in properties:
         style.set_properties(properties=elem[1], area=elem[0])
     document.insert_style(style, automatic=True)
