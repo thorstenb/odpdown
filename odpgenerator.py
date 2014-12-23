@@ -72,8 +72,8 @@ def add_style(document, style_family, style_name, properties, display_name=None,
 
 
 def wrap_spans(odf_elements):
-    '''For any homogeneous toplevel range of text:span elements, wrap them
-       into a paragraph'''
+    """For any homogeneous toplevel range of text:span elements, wrap them
+       into a paragraph"""
     res = []
     para = None
     for elem in odf_elements:
@@ -97,6 +97,7 @@ def wrap_spans(odf_elements):
 # ordering, we need to return odf partial trees in our own render
 # methods (that will then need to be concatenated via +/+=).
 class ODFPartialTree:
+    """Output object for mistune, used to collect formatter fragments via +/+= operators"""
     def __init__(self, elements):
         self._elements = elements
 
@@ -160,6 +161,7 @@ class ODFPartialTree:
 
 # from http://pygments.org/docs/formatterdevelopment/, BSD license
 class ODFFormatter(Formatter):
+    """Format pygment token stream as ODF"""
     def __init__(self, **options):
         Formatter.__init__(self, **options)
 
@@ -311,6 +313,7 @@ class ODFFormatter(Formatter):
         return result
 
 class ODFRenderer(mistune.Renderer):
+    """Render mistune event stream as ODF"""
     def __init__(self, document, break_master=None, content_master=None):
         self.formatter = ODFFormatter(style='colorful')
         self.document = document
