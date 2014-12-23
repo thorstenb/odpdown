@@ -3,8 +3,6 @@
 from distutils.core import setup
 from odpgenerator import __version__
 
-f = open('README.md')
-
 setup(name='odpgenerator',
       description='Generate OpenDocument Presentation (odp) files from markdown',
       version=__version__,
@@ -15,6 +13,11 @@ setup(name='odpgenerator',
       py_modules=['odpgenerator'],
       scripts=['odpgenerator'],
       license='BSD License',
+      install_requires=[
+          'mistune>=0.5',
+          'lpod-python>=1.1.6',
+          'pygments>=2.0',
+      ],
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',

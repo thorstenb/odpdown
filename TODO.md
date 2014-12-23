@@ -25,6 +25,8 @@
 * conceptionally - rethink the use of relative font size
   increases. it's not really needed for code blocks, and for
   block quotes, why not use e.g. formatting ala dillinger.io
+* integrate pep8 and pylint tests with nose:
+  http://blog.jameskyle.org/2014/05/pep8-pylint-tests-with-nose-xunit/
 
 ## Misc
 
