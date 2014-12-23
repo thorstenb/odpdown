@@ -47,7 +47,7 @@ import re
 from urllib import urlopen
 from mimetypes import guess_type
 
-from lpod import ODF_MANIFEST
+from lpod import ODF_MANIFEST, ODF_STYLES
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
@@ -311,10 +311,14 @@ class ODFFormatter(Formatter):
         return result
 
 class ODFRenderer(mistune.Renderer):
-    def __init__(self, document):
+    def __init__(self, document, break_master=None, content_master=None):
         self.formatter = ODFFormatter(style='colorful')
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
+        self.break_master = 'Default' if break_master is None else break_master
+        self.content_master = 'Default' if break_master is None else content_master
+
+        # font/char styles
         self.document.insert_style(
             odf_create_style (
                 'font-face',
@@ -340,9 +344,12 @@ class ODFRenderer(mistune.Renderer):
                   #  </attribute>
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
-        add_style(document, 'presentation', u'OutlineText',
-                  [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
-                  'OutlineText', u'pr14')
+        add_style(document, 'text', u'TextCodeStyle',
+                  # TODO: font size increase does not work currently - bug in xmloff?
+                  [('text', {'size': u'110%',
+                             'style:font_name': u'Nimbus Mono L'})])
+
+        # paragraph styles
         add_style(document, 'paragraph', u'ParagraphQuoteStyle',
                   [('text', {'color': u'#18a303'}),
                    ('paragraph', {'margin_left': u'0.5cm',
@@ -350,10 +357,6 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_top': u'0.6cm',
                                   'margin_bottom': u'0.5cm',
                                   'text_indent': u'-0.6cm'})])
-        add_style(document, 'text', u'TextCodeStyle',
-                  # TODO: font size increase does not work currently - bug in xmloff?
-                  [('text', {'size': u'110%',
-                             'style:font_name': u'Nimbus Mono L'})])
         add_style(document, 'paragraph', u'ParagraphCodeStyle',
                   # TODO: font size increase does not work currently - bug in xmloff?
                   [('text', {'size': u'110%',
@@ -363,6 +366,32 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_top': u'0.6cm',
                                   'margin_bottom': u'0.6cm',
                                   'text_indent': u'0cm'})])
+
+        # presentation styles
+        add_style(document, 'presentation', u'OutlineText',
+                  [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
+                  'OutlineText', self.content_master + '-outline1')
+        add_style(document, 'presentation', u'TitleText',
+                  [('graphic', {'draw:auto_grow_height': u'true'})],
+                  'TitleText',  self.content_master + '-title')
+        add_style(document, 'presentation', u'BreakTitleText',
+                  [('graphic', {'draw:auto_grow_height': u'true'})],
+                  'BreakTitleText', self.break_master + '-title')
+
+        # clone list style out of content master page (an abomination this is not
+        # referenceable out of the presentation style...)
+        content_master_styles = [ i for i in self.document.get_part(ODF_STYLES).get_elements(
+            'descendant::style:style') if i.get_attribute('style:name') ==
+                                  self.content_master + '-outline1' ]
+        if len(content_master_styles):
+            # now stick that under custom name into automatic style section
+            list_style = content_master_styles[0].get_elements(
+                'style:graphic-properties/text:list-style[1]')[0].clone()
+            list_style.set_attribute('style:name', u'OutlineListStyle')
+            document.insert_style(list_style, automatic=True)
+        # TODO: log warning in verbose mode that no outline listlevel was found
+
+        # delegate to pygments formatter for their styles
         self.formatter.add_style_defs(document)
 
     def placeholder(self):
@@ -387,12 +416,12 @@ class ODFRenderer(mistune.Renderer):
             page = odf_create_draw_page(
                 'page1',
                 name=''.join(e.get_formatted_text() for e in text.get()),
-                master_page=u'Break',
+                master_page=self.break_master,
                 presentation_page_layout=u'AL3T19')
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr10',
+                    presentation_style=u'BreakTitleText',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'8cm'),
                     presentation_class = u'title'))
@@ -400,12 +429,12 @@ class ODFRenderer(mistune.Renderer):
             page = odf_create_draw_page(
                 'page1',
                 name=''.join(e.get_formatted_text() for e in text.get()),
-                master_page=u'Logo_20_Content',
+                master_page=self.content_master,
                 presentation_page_layout=u'AL3T1')
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'pr6',
+                    presentation_style=u'TitleText',
                     size = (u'20cm', u'3cm'),
                     position = (u'2cm', u'0.5cm'),
                     presentation_class = u'title'))
@@ -440,7 +469,8 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([item])
 
     def list(self, body, ordered=True):
-        lst = odf_create_list(style=u'L2' if ordered else u'L4')
+        # TODO: reverse-engineer magic to convert outline style to numbering style
+        lst = odf_create_list(style=u'L1' if ordered else u'OutlineListStyle')
         for elem in body.get():
             lst.append(elem)
         return ODFPartialTree([lst])
@@ -546,6 +576,12 @@ def main():
     parser.add_argument('-p', '--page', default=-1, type=int,
                         help='Append markdown after given page. Negative numbers count from the'
                         ' end of the slide stack')
+    parser.add_argument('--break-master', nargs='?', const='', default=None,
+                        help='Use this master page for the 1st level headlines. List available ones'
+                        ' if called with empty or unknown name')
+    parser.add_argument('--content-master', nargs='?', const='', default=None,
+                        help='Use this master page for the 2nd level headlines and content. List'
+                        ' available ones if called with empty or unknown name')
     args = parser.parse_args()
 
     markdown = args.input_md
@@ -553,7 +589,19 @@ def main():
     odf_out = args.output_odp
     presentation = odf_get_document(odf_in)
 
-    odf_renderer = ODFRenderer(presentation)
+    master_pages = presentation.get_part(ODF_STYLES).get_elements('descendant::style:master-page')
+    master_names = [ i.get_attribute('style:name') for i in master_pages ]
+    if ((args.break_master is not None and args.break_master not in master_names)
+           or (args.content_master is not None and args.content_master not in master_names)):
+        print 'Available master page names in template:'
+        print '----------------------------------------'
+        for i in master_names:
+            print ' - ' + i
+        return
+
+    odf_renderer = ODFRenderer(presentation,
+                               break_master=args.break_master,
+                               content_master=args.content_master)
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
     doc_elems = presentation.get_body()

@@ -2,8 +2,6 @@
 
 ## Features
 
-* auto-detect styles & master pages in input template, reuse or
-  add custom ones in generator
 * add a metric ton of options for all the hard-coded decisions in the
   code (autofit, which styles, syntax highlight colours etc etc)
 * images:
