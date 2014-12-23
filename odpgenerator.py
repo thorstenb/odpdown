@@ -62,7 +62,7 @@ from pygments.formatter import Formatter
 
 """Generate OpenDocument Presentation (odp) files from markdown"""
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
 __all__ = [
     'ODFRenderer', 'ODFRenderer',

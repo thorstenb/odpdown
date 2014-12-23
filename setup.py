@@ -16,7 +16,7 @@ setup(name='odpgenerator',
       scripts=['odpgenerator'],
       license='BSD License',
       classifiers=[
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Intended Audience :: End Users/Desktop',
           'Intended Audience :: Developers',
