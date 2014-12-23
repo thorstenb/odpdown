@@ -60,6 +60,15 @@ from lpod.link import odf_create_link, odf_link
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.formatter import Formatter
 
+"""Generate OpenDocument Presentation (odp) files from markdown"""
+
+__version__ = '0.0.1'
+__author__ = 'Thorsten Behrens <tbehrens@acm.org>'
+__all__ = [
+    'ODFRenderer', 'ODFRenderer',
+    'ODFFormatter', 'ODFFormatter',
+    'ODFPartialTree', 'ODFPartialTree',
+]
 
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name, properties, display_name=None, parent=None):
