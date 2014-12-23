@@ -4,7 +4,8 @@ from distutils.core import setup
 from odpgenerator import __version__
 
 setup(name='odpgenerator',
-      description='Generate OpenDocument Presentation (odp) files from markdown',
+      description='Generate OpenDocument Presentation (odp) files'
+      ' from markdown',
       version=__version__,
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
@@ -27,6 +28,4 @@ setup(name='odpgenerator',
           'Programming Language :: Python',
           'Topic :: Multimedia :: Graphics :: Presentation',
           'Topic :: Software Development :: Documentation',
-          'Topic :: Office/Business',
-          ],
-)
+          'Topic :: Office/Business'])

@@ -53,7 +53,8 @@ from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
-from lpod.paragraph import odf_create_paragraph, odf_span, odf_create_line_break, odf_create_spaces
+from lpod.paragraph import odf_create_paragraph, odf_span
+from lpod.paragraph import odf_create_line_break, odf_create_spaces
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
 
@@ -70,8 +71,10 @@ __all__ = [
     'ODFPartialTree', 'ODFPartialTree',
 ]
 
+
 # helper for ODFFormatter and ODFRenderer
-def add_style(document, style_family, style_name, properties, display_name=None, parent=None):
+def add_style(document, style_family, style_name,
+              properties, display_name=None, parent=None):
     """Insert global style into given document"""
     style = odf_create_style(style_family, style_name,
                              display_name, parent)
@@ -106,18 +109,22 @@ def wrap_spans(odf_elements):
 # ordering, we need to return odf partial trees in our own render
 # methods (that will then need to be concatenated via +/+=).
 class ODFPartialTree:
-    """Output object for mistune, used to collect formatter fragments via +/+= operators"""
+    """Output object for mistune, used to collect formatter fragments
+       via +/+= operators"""
     def __init__(self, elements):
         self._elements = elements
 
     def _add_child_elems(self, elems):
         # TODO: kill this ugly typeswitching
         if (len(self._elements)
-              and isinstance(self._elements[-1], odf_draw_page)
-              and not isinstance(elems[0], odf_draw_page)):
+            and isinstance(
+                self._elements[-1], odf_draw_page)
+            and not isinstance(
+                elems[0], odf_draw_page)):
 
             # stick additional frame content into last existing one
-            for child in self._elements[-1].get_elements('descendant::draw:frame'):
+            for child in self._elements[-1].get_elements(
+                    'descendant::draw:frame'):
                 if child.get_presentation_class() == u'outline':
                     text_box = child.get_children()[0]
                     for elem in wrap_spans(elems):
@@ -135,16 +142,16 @@ class ODFPartialTree:
                     odf_create_text_frame(
                         elems,
                         presentation_style=u'OutlineText',
-                        size = (u'22cm', u'12cm'),
-                        position = (u'2cm', u'4cm'),
-                        presentation_class = u'outline'))
+                        size=(u'22cm', u'12cm'),
+                        position=(u'2cm', u'4cm'),
+                        presentation_class=u'outline'))
         else:
             self._elements += elems
 
     def _add_text(self, text):
         span = odf_create_element('text:span')
         span.set_text(unicode(text))
-        self._elements.append( span )
+        self._elements.append(span)
 
     def __add__(self, other):
         tmp = ODFPartialTree(list(self._elements))
@@ -191,11 +198,11 @@ class ODFFormatter(Formatter):
             # colors are readily specified in hex: 'RRGGBB'
             if style['color']:
                 root_elem = curr_elem = odf_create_element('text:span')
-                curr_elem.set_style( 'TColor%s' % style['color'] )
+                curr_elem.set_style('TColor%s' % style['color'])
 
             if style['bold']:
                 span = odf_create_element('text:span')
-                span.set_style( 'TBold' )
+                span.set_style('TBold')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -204,7 +211,7 @@ class ODFFormatter(Formatter):
 
             if style['italic']:
                 span = odf_create_element('text:span')
-                span.set_style( 'TItalic' )
+                span.set_style('TItalic')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -213,7 +220,7 @@ class ODFFormatter(Formatter):
 
             if style['underline']:
                 span = odf_create_element('text:span')
-                span.set_style( 'TUnderline' )
+                span.set_style('TUnderline')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -294,7 +301,7 @@ class ODFFormatter(Formatter):
                                     result.append(span)
                                 else:
                                     leaf_span.set_text(unicode(part))
-                                    result.append( root_span.clone() )
+                                    result.append(root_span.clone())
                         # for all but the last line: add linebreak
                         if index < len(lines)-1:
                             result.append(odf_create_line_break())
@@ -313,13 +320,14 @@ class ODFFormatter(Formatter):
                 result.append(span)
             else:
                 leaf_span.set_text(unicode(lastval))
-                result.append( root_span.clone() )
+                result.append(root_span.clone())
         else:
             # kill last linebreak
             if len(result) and result[:-1] == 'text:span':
                 result = result[0:-2]
 
         return result
+
 
 class ODFRenderer(mistune.Renderer):
     """Render mistune event stream as ODF"""
@@ -328,11 +336,12 @@ class ODFRenderer(mistune.Renderer):
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.break_master = 'Default' if break_master is None else break_master
-        self.content_master = 'Default' if break_master is None else content_master
+        self.content_master = 'Default' if (break_master
+                                            is None) else content_master
 
         # font/char styles
         self.document.insert_style(
-            odf_create_style (
+            odf_create_style(
                 'font-face',
                 name=u'Nimbus Mono L',
                 font_name=u'Nimbus Mono L',
@@ -343,7 +352,8 @@ class ODFRenderer(mistune.Renderer):
         add_style(document, 'text', u'TextEmphasisStyle',
                   [('text', {'font_style': u'italic'})])
         add_style(document, 'text', u'TextDoubleEmphasisStyle',
-                  [('text', {'font_style': u'italic', 'font_weight': u'bold'})])
+                  [('text', {'font_style': u'italic',
+                             'font_weight': u'bold'})])
         add_style(document, 'text', u'TextQuoteStyle',
                   # TODO: font size increase does not work currently
                   # Bug in Impress:
@@ -357,7 +367,8 @@ class ODFRenderer(mistune.Renderer):
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
         add_style(document, 'text', u'TextCodeStyle',
-                  # TODO: font size increase does not work currently - bug in xmloff?
+                  # TODO: font size increase does not work currently -
+                  # bug in xmloff?
                   [('text', {'size': u'110%',
                              'style:font_name': u'Nimbus Mono L'})])
 
@@ -370,7 +381,8 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_bottom': u'0.5cm',
                                   'text_indent': u'-0.6cm'})])
         add_style(document, 'paragraph', u'ParagraphCodeStyle',
-                  # TODO: font size increase does not work currently - bug in xmloff?
+                  # TODO: font size increase does not work currently -
+                  # bug in xmloff?
                   [('text', {'size': u'110%',
                              'style:font_name': u'Nimbus Mono L'}),
                    ('paragraph', {'margin_left': u'0.5cm',
@@ -390,11 +402,13 @@ class ODFRenderer(mistune.Renderer):
                   [('graphic', {'draw:auto_grow_height': u'true'})],
                   'BreakTitleText', self.break_master + '-title')
 
-        # clone list style out of content master page (an abomination this is not
-        # referenceable out of the presentation style...)
-        content_master_styles = [ i for i in self.document.get_part(ODF_STYLES).get_elements(
-            'descendant::style:style') if i.get_attribute('style:name') ==
-                                  self.content_master + '-outline1' ]
+        # clone list style out of content master page (an abomination
+        # this is not referenceable out of the presentation style...)
+        content_master_styles = [i for i in self.document.get_part(
+            ODF_STYLES).get_elements(
+                'descendant::style:style') if (
+                    i.get_attribute('style:name') ==
+                    self.content_master + '-outline1')]
         if len(content_master_styles):
             # now stick that under custom name into automatic style section
             list_style = content_master_styles[0].get_elements(
@@ -434,9 +448,9 @@ class ODFRenderer(mistune.Renderer):
                 odf_create_text_frame(
                     wrap_spans(text.get()),
                     presentation_style=u'BreakTitleText',
-                    size = (u'20cm', u'3cm'),
-                    position = (u'2cm', u'8cm'),
-                    presentation_class = u'title'))
+                    size=(u'20cm', u'3cm'),
+                    position=(u'2cm', u'8cm'),
+                    presentation_class=u'title'))
         elif level == 2:
             page = odf_create_draw_page(
                 'page1',
@@ -447,8 +461,8 @@ class ODFRenderer(mistune.Renderer):
                 odf_create_text_frame(
                     wrap_spans(text.get()),
                     presentation_style=u'TitleText',
-                    size = (u'20cm', u'3cm'),
-                    position = (u'2cm', u'0.5cm'),
+                    size=(u'20cm', u'3cm'),
+                    position=(u'2cm', u'0.5cm'),
                     presentation_class = u'title'))
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
@@ -481,7 +495,8 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([item])
 
     def list(self, body, ordered=True):
-        # TODO: reverse-engineer magic to convert outline style to numbering style
+        # TODO: reverse-engineer magic to convert outline style to
+        # numbering style
         lst = odf_create_list(style=u'L1' if ordered else u'OutlineListStyle')
         for elem in body.get():
             lst.append(elem)
@@ -554,9 +569,9 @@ class ODFRenderer(mistune.Renderer):
         frame = odf_create_image_frame(
             fragment_name,
             text=unicode(title),
-            size = (u'22cm', u'12cm'),
-            position = (u'2cm', u'4cm'),
-            presentation_class = u'graphic')
+            size=(u'22cm', u'12cm'),
+            position=(u'2cm', u'4cm'),
+            presentation_class=u'graphic')
         frame.set_svg_description(unicode(alt_text))
 
         self.doc_manifest.add_full_path(fragment_name,
@@ -574,8 +589,10 @@ class ODFRenderer(mistune.Renderer):
     def strikethrough(self, text):
         pass
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Convert markdown text into OpenDocument presentations')
+    parser = argparse.ArgumentParser(
+        description='Convert markdown text into OpenDocument presentations')
     parser.add_argument('input_md',
                         type=argparse.FileType('r'),
                         help='Input markdown file')
@@ -586,14 +603,16 @@ def main():
                         type=argparse.FileType('w'),
                         help='Output ODP file')
     parser.add_argument('-p', '--page', default=-1, type=int,
-                        help='Append markdown after given page. Negative numbers count from the'
-                        ' end of the slide stack')
+                        help='Append markdown after given page. Negative '
+                        'numbers count from the end of the slide stack')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
-                        help='Use this master page for the 1st level headlines. List available ones'
-                        ' if called with empty or unknown name')
+                        help='Use this master page for the 1st level'
+                        ' headlines. List available ones if called with empty'
+                        ' or unknown name')
     parser.add_argument('--content-master', nargs='?', const='', default=None,
-                        help='Use this master page for the 2nd level headlines and content. List'
-                        ' available ones if called with empty or unknown name')
+                        help='Use this master page for the 2nd level headlines'
+                        ' and content. List available ones if called with'
+                        ' empty or unknown name')
     args = parser.parse_args()
 
     markdown = args.input_md
@@ -601,10 +620,14 @@ def main():
     odf_out = args.output_odp
     presentation = odf_get_document(odf_in)
 
-    master_pages = presentation.get_part(ODF_STYLES).get_elements('descendant::style:master-page')
-    master_names = [ i.get_attribute('style:name') for i in master_pages ]
-    if ((args.break_master is not None and args.break_master not in master_names)
-           or (args.content_master is not None and args.content_master not in master_names)):
+    master_pages = presentation.get_part(ODF_STYLES).get_elements(
+        'descendant::style:master-page')
+    master_names = [i.get_attribute('style:name') for i in master_pages]
+    if ((args.break_master is not None
+         and args.break_master not in master_names)
+        or (args.content_master is not None
+            and args.content_master not in master_names)):
+
         print 'Available master page names in template:'
         print '----------------------------------------'
         for i in master_names:

@@ -43,11 +43,13 @@ testdoc = None
 odf_renderer = None
 mkdown = None
 
+
 def setup():
     global testdoc, odf_renderer, mkdown
     testdoc = odf_new_document('presentation')
     odf_renderer = odpgenerator.ODFRenderer(testdoc)
     mkdown = mistune.Markdown(renderer=odf_renderer)
+
 
 @with_setup(setup)
 def test_heading1():
@@ -56,7 +58,9 @@ def test_heading1():
     assert len(odf.get()) == 1
     assert isinstance(odf.get()[0], odf_draw_page)
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 1
-    assert odf.get()[0].get_elements('descendant::text:span')[0].get_text() == 'Heading 1'
+    assert odf.get()[0].get_elements(
+        'descendant::text:span')[0].get_text() == 'Heading 1'
+
 
 @with_setup(setup)
 def test_heading2():
@@ -65,7 +69,9 @@ def test_heading2():
     assert len(odf.get()) == 1
     assert isinstance(odf.get()[0], odf_draw_page)
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 1
-    assert odf.get()[0].get_elements('descendant::text:span')[0].get_text() == 'Heading 2'
+    assert odf.get()[0].get_elements(
+        'descendant::text:span')[0].get_text() == 'Heading 2'
+
 
 @raises(RuntimeError)
 @with_setup(setup)
@@ -73,6 +79,7 @@ def test_heading3():
     # headings of level 3 or higher not supported currently
     markdown = '### Heading 3'
     odf = mkdown.render(markdown)
+
 
 @with_setup(setup)
 def test_simple_page():
@@ -88,6 +95,7 @@ This is a sample paragraph.
             'Heading')
     assert (odf.get()[0].get_elements('descendant::text:span')[2].get_text() ==
             'This is a sample paragraph.')
+
 
 @with_setup(setup)
 def test_items_page():
@@ -105,11 +113,15 @@ def test_items_page():
             'Heading')
     items = odf.get()[0].get_elements('descendant::text:list-item')
     assert len(items) == 3
-    assert items[0].get_elements('descendant::text:span')[0].get_text() == 'this is item one'
-    assert items[1].get_elements('descendant::text:span')[0].get_text() == 'this is item two'
+    assert items[0].get_elements(
+        'descendant::text:span')[0].get_text() == 'this is item one'
+    assert items[1].get_elements(
+        'descendant::text:span')[0].get_text() == 'this is item two'
     subitems = items[1].get_elements('descendant::text:list-item')
     assert len(subitems) == 1
-    assert subitems[0].get_elements('descendant::text:span')[0].get_text() == 'and a subitem'
+    assert subitems[0].get_elements(
+        'descendant::text:span')[0].get_text() == 'and a subitem'
+
 
 @with_setup(setup)
 def test_code_block():
@@ -131,6 +143,7 @@ void main()
     spaces = odf.get()[0].get_elements('descendant::text:s')
     assert len(spaces) == 3
     assert spaces[1].get_attribute('text:c') == '4'
+
 
 @with_setup(setup)
 def test_complex():
