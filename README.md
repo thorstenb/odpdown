@@ -1,11 +1,22 @@
 # Generate ODP files from markdown
 
+## Attributions
+
+Original Markdown Copyright (c) 2004-2005 John Gruber
+http://daringfireball.net/projects/markdown/
+
+Myself got kicked into action by seeing
+https://github.com/puppetlabs/showoff and getting terribly envious by
+realizing how much of a productivity gain that would be.
+
 ## Mission
 
 Have a tool like pandoc, latex beamer etc, that you can write (or
 auto-generate) input for within your favourite hacker's editor, and
 generate nice-looking slides from. Using your corporation's mandatory,
-CI-compliant and lovely-artsy Impress template.
+CI-compliant and lovely-artsy Impress template. Including
+syntax-highlighted code snippets of your latest hack, auto-fitted into
+the slides.
 
 ## Usage
 
@@ -38,3 +49,7 @@ CI-compliant and lovely-artsy Impress template.
       # deploy comes after architecture slide, which is slide 2 in
       # hand_crafted.md and 2+10 after intro got added
       ./odpgenerator.py -p 12 deploy.md out_slides.odp out_slides.odp
+
+Have a lot of fun,
+
+-- Thorsten
