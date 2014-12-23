@@ -143,7 +143,7 @@ class ODFPartialTree:
                 self._elements[-1].append(
                     odf_create_text_frame(
                         elems,
-                        presentation_style=u'OutlineText',
+                        presentation_style=u'md2odp-OutlineText',
                         size=(u'22cm', u'12cm'),
                         position=(u'2cm', u'4cm'),
                         presentation_class=u'outline'))
@@ -182,7 +182,8 @@ class ODFPartialTree:
         return self._elements
 
 
-# from http://pygments.org/docs/formatterdevelopment/, BSD license
+# parts from http://pygments.org/docs/formatterdevelopment/, BSD
+# license
 class ODFFormatter(Formatter):
     """Format pygment token stream as ODF"""
     def __init__(self, **options):
@@ -206,12 +207,12 @@ class ODFFormatter(Formatter):
             if style['color']:
                 root_elem = curr_elem = odf_create_element('text:span')
                 # pylint: disable=maybe-no-member
-                curr_elem.set_style('TColor%s' % style['color'])
+                curr_elem.set_style('md2odp-TColor%s' % style['color'])
 
             if style['bold']:
                 span = odf_create_element('text:span')
                 # pylint: disable=maybe-no-member
-                span.set_style('TBold')
+                span.set_style('md2odp-TBold')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -221,7 +222,7 @@ class ODFFormatter(Formatter):
             if style['italic']:
                 span = odf_create_element('text:span')
                 # pylint: disable=maybe-no-member
-                span.set_style('TItalic')
+                span.set_style('md2odp-TItalic')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -231,7 +232,7 @@ class ODFFormatter(Formatter):
             if style['underline']:
                 span = odf_create_element('text:span')
                 # pylint: disable=maybe-no-member
-                span.set_style('TUnderline')
+                span.set_style('md2odp-TUnderline')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -248,16 +249,17 @@ class ODFFormatter(Formatter):
             # a style item is a tuple in the following form:
             # colors are readily specified in hex: 'RRGGBB'
             if style['color']:
-                add_style(document, 'text', u'TColor%s' % style['color'],
+                add_style(document, 'text',
+                          u'md2odp-TColor%s' % style['color'],
                           [('text', {'color': u'#'+style['color']})])
             if style['bold']:
-                add_style(document, 'text', u'TBold',
+                add_style(document, 'text', u'md2odp-TBold',
                           [('text', {'font_weight': u'bold'})])
             if style['italic']:
-                add_style(document, 'text', u'TItalic',
+                add_style(document, 'text', u'md2odp-TItalic',
                           [('text', {'font_style': u'italic'})])
             if style['underline']:
-                add_style(document, 'text', u'TUnderline',
+                add_style(document, 'text', u'md2odp-TUnderline',
                           [('text', {'text_underline_style': u'solid',
                                      'text_underline_width': u'auto',
                                      'text_underline_color': u'font-color'})])
@@ -265,11 +267,10 @@ class ODFFormatter(Formatter):
     def format(self, tokensource):
         result = []
 
-        # lastval is a string we use for caching
-        # because it's possible that an lexer yields a number
-        # of consecutive tokens with the same token type.
-        # to minimize the size of the generated html markup we
-        # try to join the values of same-type tokens here
+        # lastval is a string we use for caching because it's possible
+        # that an lexer yields a number of consecutive tokens with the
+        # same token type.  to minimize the size of the generated
+        # markup we try to join the values of same-type tokens here
         lastval = ''
         lasttype = None
 
@@ -322,8 +323,7 @@ class ODFFormatter(Formatter):
                 lastval = value
                 lasttype = ttype
 
-        # if something is left in the buffer, write it to the
-        # output file, then close the opened <pre> tag
+        # something left in lastval? flush it now
         if lastval:
             root_span, leaf_span = self.styles[lasttype]
             if root_span is None:
@@ -334,7 +334,7 @@ class ODFFormatter(Formatter):
                 leaf_span.set_text(unicode(lastval))
                 result.append(root_span.clone())
         else:
-            # kill last linebreak
+            # kill last (extraneous) linebreak
             if len(result) and result[:-1] == 'text:span':
                 result = result[0:-2]
 
@@ -362,12 +362,12 @@ class ODFRenderer(mistune.Renderer):
                 font_family_generic=u'modern',
                 font_pitch=u'fixed'),
             automatic=True)
-        add_style(document, 'text', u'TextEmphasisStyle',
+        add_style(document, 'text', u'md2odp-TextEmphasisStyle',
                   [('text', {'font_style': u'italic'})])
-        add_style(document, 'text', u'TextDoubleEmphasisStyle',
+        add_style(document, 'text', u'md2odp-TextDoubleEmphasisStyle',
                   [('text', {'font_style': u'italic',
                              'font_weight': u'bold'})])
-        add_style(document, 'text', u'TextQuoteStyle',
+        add_style(document, 'text', u'md2odp-TextQuoteStyle',
                   # TODO: font size increase does not work currently
                   # Bug in Impress:
                   # schema has his - for _all_ occurences
@@ -379,21 +379,21 @@ class ODFRenderer(mistune.Renderer):
                   #  </attribute>
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
-        add_style(document, 'text', u'TextCodeStyle',
+        add_style(document, 'text', u'md2odp-TextCodeStyle',
                   # TODO: font size increase does not work currently -
                   # bug in xmloff?
                   [('text', {'size': u'110%',
                              'style:font_name': u'Nimbus Mono L'})])
 
         # paragraph styles
-        add_style(document, 'paragraph', u'ParagraphQuoteStyle',
+        add_style(document, 'paragraph', u'md2odp-ParagraphQuoteStyle',
                   [('text', {'color': u'#18a303'}),
                    ('paragraph', {'margin_left': u'0.5cm',
                                   'margin_right': u'0.5cm',
                                   'margin_top': u'0.6cm',
                                   'margin_bottom': u'0.5cm',
                                   'text_indent': u'-0.6cm'})])
-        add_style(document, 'paragraph', u'ParagraphCodeStyle',
+        add_style(document, 'paragraph', u'md2odp-ParagraphCodeStyle',
                   # TODO: font size increase does not work currently -
                   # bug in xmloff?
                   [('text', {'size': u'110%',
@@ -405,13 +405,13 @@ class ODFRenderer(mistune.Renderer):
                                   'text_indent': u'0cm'})])
 
         # presentation styles
-        add_style(document, 'presentation', u'OutlineText',
+        add_style(document, 'presentation', u'md2odp-OutlineText',
                   [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
                   self.content_master + '-outline1')
-        add_style(document, 'presentation', u'TitleText',
+        add_style(document, 'presentation', u'md2odp-TitleText',
                   [('graphic', {'draw:auto_grow_height': u'true'})],
                   self.content_master + '-title')
-        add_style(document, 'presentation', u'BreakTitleText',
+        add_style(document, 'presentation', u'md2odp-BreakTitleText',
                   [('graphic', {'draw:auto_grow_height': u'true'})],
                   self.break_master + '-title')
 
@@ -437,7 +437,7 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([])
 
     def block_code(self, code, language=None):
-        para = odf_create_paragraph(style=u'ParagraphCodeStyle')
+        para = odf_create_paragraph(style=u'md2odp-ParagraphCodeStyle')
 
         if language is not None:
             lexer = get_lexer_by_name(language)
@@ -459,7 +459,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'BreakTitleText',
+                    presentation_style=u'md2odp-BreakTitleText',
                     size=(u'20cm', u'3cm'),
                     position=(u'2cm', u'8cm'),
                     presentation_class=u'title'))
@@ -472,7 +472,7 @@ class ODFRenderer(mistune.Renderer):
             page.append(
                 odf_create_text_frame(
                     wrap_spans(text.get()),
-                    presentation_style=u'TitleText',
+                    presentation_style=u'md2odp-TitleText',
                     size=(u'20cm', u'3cm'),
                     position=(u'2cm', u'0.5cm'),
                     presentation_class = u'title'))
@@ -482,7 +482,7 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree([page])
 
     def block_quote(self, text):
-        para = odf_create_paragraph(style=u'ParagraphQuoteStyle')
+        para = odf_create_paragraph(style=u'md2odp-ParagraphQuoteStyle')
         span = odf_create_element('text:span')
         span.set_text(u'“')
         para.append(span)
@@ -497,8 +497,8 @@ class ODFRenderer(mistune.Renderer):
         para.append(span)
 
         # pylint: disable=maybe-no-member
-        para.set_span(u'TextQuoteStyle', regex=u'“')
-        para.set_span(u'TextQuoteStyle', regex=u'”')
+        para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
+        para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
         return ODFPartialTree([para])
 
     def list_item(self, text):
@@ -553,7 +553,7 @@ class ODFRenderer(mistune.Renderer):
     def codespan(self, text):
         span = odf_create_element('text:span')
         # pylint: disable=maybe-no-member
-        span.set_style('TextCodeStyle')
+        span.set_style('md2odp-TextCodeStyle')
         if isinstance(text, str):
             span.set_text(unicode(text))
         else:
@@ -564,7 +564,7 @@ class ODFRenderer(mistune.Renderer):
     def double_emphasis(self, text):
         span = odf_create_element('text:span')
         # pylint: disable=maybe-no-member
-        span.set_style('TextDoubleEmphasisStyle')
+        span.set_style('md2odp-TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
         return ODFPartialTree([span])
@@ -572,7 +572,7 @@ class ODFRenderer(mistune.Renderer):
     def emphasis(self, text):
         span = odf_create_element('text:span')
         # pylint: disable=maybe-no-member
-        span.set_style('TextEmphasisStyle')
+        span.set_style('md2odp-TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
         return ODFPartialTree([span])

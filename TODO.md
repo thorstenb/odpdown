@@ -21,7 +21,6 @@
 ## Easy hacks
 
 * grep for TODO comments in the code, kill them one by one
-* prefix generated styles with something unique (e.g. prog name)
 * conceptionally - rethink the use of relative font size
   increases. it's not really needed for code blocks, and for
   block quotes, why not use e.g. formatting ala dillinger.io
