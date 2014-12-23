@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Generate OpenDocument Presentation (odp) files from markdown"""
+
 #
 # Copyright (c) 2014, Thorsten Behrens
 # Copyright (c) 2010, Bart Hanssens
@@ -38,7 +40,6 @@
 # https://lists.oasis-open.org/archives/opendocument-users/201008/msg00004.html
 # and lpod-python-recipes
 #
-import sys
 import mistune
 import argparse
 import urlparse
@@ -55,13 +56,12 @@ from lpod.list import odf_create_list_item, odf_create_list
 from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span
 from lpod.paragraph import odf_create_line_break, odf_create_spaces
+from lpod.paragraph import odf_create_tabulation
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
 
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.formatter import Formatter
-
-"""Generate OpenDocument Presentation (odp) files from markdown"""
 
 __version__ = '0.1.0'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
@@ -74,11 +74,12 @@ __all__ = [
 
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name,
-              properties, display_name=None, parent=None):
+              properties, parent=None):
     """Insert global style into given document"""
     style = odf_create_style(style_family, style_name,
-                             display_name, parent)
+                             style_name, parent)
     for elem in properties:
+        # pylint: disable=maybe-no-member
         style.set_properties(properties=elem[1], area=elem[0])
     document.insert_style(style, automatic=True)
 
@@ -114,7 +115,8 @@ class ODFPartialTree:
     def __init__(self, elements):
         self._elements = elements
 
-    def _add_child_elems(self, elems):
+    def add_child_elems(self, elems):
+        """Helper to add elems to self as children"""
         # TODO: kill this ugly typeswitching
         if (len(self._elements)
             and isinstance(
@@ -148,30 +150,35 @@ class ODFPartialTree:
         else:
             self._elements += elems
 
-    def _add_text(self, text):
+    def add_text(self, text):
+        """Helper to ctext to self"""
         span = odf_create_element('text:span')
         span.set_text(unicode(text))
         self._elements.append(span)
 
     def __add__(self, other):
+        """Override of +"""
         tmp = ODFPartialTree(list(self._elements))
         if isinstance(other, str):
-            tmp._add_text(other)
+            tmp.add_text(other)
         else:
-            tmp._add_child_elems(other._elements)
+            tmp.add_child_elems(other.get())
         return tmp
 
     def __iadd__(self, other):
+        """Override of +="""
         if isinstance(other, str):
-            self._add_text(other)
+            self.add_text(other)
         else:
-            self._add_child_elems(other._elements)
+            self.add_child_elems(other.get())
         return self
 
     def __copy__(self):
+        """Override for deep copy"""
         return ODFPartialTree(self._elements[:])
 
     def get(self):
+        """Get list of odf_element elements"""
         return self._elements
 
 
@@ -198,10 +205,12 @@ class ODFFormatter(Formatter):
             # colors are readily specified in hex: 'RRGGBB'
             if style['color']:
                 root_elem = curr_elem = odf_create_element('text:span')
+                # pylint: disable=maybe-no-member
                 curr_elem.set_style('TColor%s' % style['color'])
 
             if style['bold']:
                 span = odf_create_element('text:span')
+                # pylint: disable=maybe-no-member
                 span.set_style('TBold')
                 if root_elem is None:
                     root_elem = curr_elem = span
@@ -211,6 +220,7 @@ class ODFFormatter(Formatter):
 
             if style['italic']:
                 span = odf_create_element('text:span')
+                # pylint: disable=maybe-no-member
                 span.set_style('TItalic')
                 if root_elem is None:
                     root_elem = curr_elem = span
@@ -220,6 +230,7 @@ class ODFFormatter(Formatter):
 
             if style['underline']:
                 span = odf_create_element('text:span')
+                # pylint: disable=maybe-no-member
                 span.set_style('TUnderline')
                 if root_elem is None:
                     root_elem = curr_elem = span
@@ -230,6 +241,7 @@ class ODFFormatter(Formatter):
             self.styles[token] = (root_elem, curr_elem)
 
     def add_style_defs(self, document):
+        """Add needed odf autostyles to document"""
         # we iterate over the `_styles` attribute of a style item
         # that contains the parsed style values.
         for token, style in self.style:
@@ -250,7 +262,7 @@ class ODFFormatter(Formatter):
                                      'text_underline_width': u'auto',
                                      'text_underline_color': u'font-color'})])
 
-    def format(self, tokensource, document):
+    def format(self, tokensource):
         result = []
 
         # lastval is a string we use for caching
@@ -332,6 +344,7 @@ class ODFFormatter(Formatter):
 class ODFRenderer(mistune.Renderer):
     """Render mistune event stream as ODF"""
     def __init__(self, document, break_master=None, content_master=None):
+        mistune.Renderer.__init__(self)
         self.formatter = ODFFormatter(style='colorful')
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
@@ -394,13 +407,13 @@ class ODFRenderer(mistune.Renderer):
         # presentation styles
         add_style(document, 'presentation', u'OutlineText',
                   [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
-                  'OutlineText', self.content_master + '-outline1')
+                  self.content_master + '-outline1')
         add_style(document, 'presentation', u'TitleText',
                   [('graphic', {'draw:auto_grow_height': u'true'})],
-                  'TitleText',  self.content_master + '-title')
+                  self.content_master + '-title')
         add_style(document, 'presentation', u'BreakTitleText',
                   [('graphic', {'draw:auto_grow_height': u'true'})],
-                  'BreakTitleText', self.break_master + '-title')
+                  self.break_master + '-title')
 
         # clone list style out of content master page (an abomination
         # this is not referenceable out of the presentation style...)
@@ -431,8 +444,7 @@ class ODFRenderer(mistune.Renderer):
         else:
             lexer = guess_lexer(code)
 
-        for span in self.formatter.format(lexer.get_tokens(code),
-                                          self.document):
+        for span in self.formatter.format(lexer.get_tokens(code)):
             para.append(span)
         return ODFPartialTree([para])
 
@@ -484,6 +496,7 @@ class ODFRenderer(mistune.Renderer):
         span.set_text(u'”')
         para.append(span)
 
+        # pylint: disable=maybe-no-member
         para.set_span(u'TextQuoteStyle', regex=u'“')
         para.set_span(u'TextQuoteStyle', regex=u'”')
         return ODFPartialTree([para])
@@ -539,6 +552,7 @@ class ODFRenderer(mistune.Renderer):
 
     def codespan(self, text):
         span = odf_create_element('text:span')
+        # pylint: disable=maybe-no-member
         span.set_style('TextCodeStyle')
         if isinstance(text, str):
             span.set_text(unicode(text))
@@ -549,6 +563,7 @@ class ODFRenderer(mistune.Renderer):
 
     def double_emphasis(self, text):
         span = odf_create_element('text:span')
+        # pylint: disable=maybe-no-member
         span.set_style('TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
@@ -556,6 +571,7 @@ class ODFRenderer(mistune.Renderer):
 
     def emphasis(self, text):
         span = odf_create_element('text:span')
+        # pylint: disable=maybe-no-member
         span.set_style('TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
@@ -591,6 +607,7 @@ class ODFRenderer(mistune.Renderer):
 
 
 def main():
+    """Command-line conversion tool"""
     parser = argparse.ArgumentParser(
         description='Convert markdown text into OpenDocument presentations')
     parser.add_argument('input_md',
@@ -643,8 +660,11 @@ def main():
     if args.page < 0:
         args.page = len(doc_elems.get_children()) + args.page
 
-    for index, page in enumerate(mkdown.render(markdown.read()).get()):
-        doc_elems.insert(page, position=args.page + index)
+    pages = mkdown.render(markdown.read())
+    if isinstance(pages, ODFPartialTree):
+        # pylint: disable=maybe-no-member
+        for index, page in enumerate(pages.get()):
+            doc_elems.insert(page, position=args.page + index)
 
         presentation.save(target=odf_out, pretty=False)
 
