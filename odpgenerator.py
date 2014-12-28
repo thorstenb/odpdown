@@ -112,8 +112,15 @@ def wrap_spans(odf_elements):
 class ODFPartialTree:
     """Output object for mistune, used to collect formatter fragments
        via +/+= operators"""
-    def __init__(self, elements):
+    def __init__(self, elements, outline_size, outline_position):
         self._elements = elements
+        self.outline_size = outline_size
+        self.outline_position = outline_position
+
+    def __init__(self, elements, metrics_provider):
+        self._elements = elements
+        self.outline_size = metrics_provider.outline_size
+        self.outline_position = metrics_provider.outline_position
 
     def add_child_elems(self, elems):
         """Helper to add elems to self as children"""
@@ -144,8 +151,10 @@ class ODFPartialTree:
                     odf_create_text_frame(
                         elems,
                         presentation_style=u'md2odp-OutlineText',
-                        size=(u'22cm', u'12cm'),
-                        position=(u'2cm', u'4cm'),
+                        size=(u'%s' % self.outline_size[0],
+                              u'%s' % self.outline_size[1]),
+                        position=(u'%s' % self.outline_position[0],
+                                  u'%s' % self.outline_position[1]),
                         presentation_class=u'outline'))
         else:
             self._elements += elems
@@ -158,7 +167,9 @@ class ODFPartialTree:
 
     def __add__(self, other):
         """Override of +"""
-        tmp = ODFPartialTree(list(self._elements))
+        tmp = ODFPartialTree(list(self._elements),
+                             self.outline_size,
+                             self.outline_position)
         if isinstance(other, str):
             tmp.add_text(other)
         else:
@@ -175,7 +186,9 @@ class ODFPartialTree:
 
     def __copy__(self):
         """Override for deep copy"""
-        return ODFPartialTree(self._elements[:])
+        return ODFPartialTree(self._elements[:],
+                              self.outline_size,
+                              self.outline_position)
 
     def get(self):
         """Get list of odf_element elements"""
@@ -343,14 +356,35 @@ class ODFFormatter(Formatter):
 
 class ODFRenderer(mistune.Renderer):
     """Render mistune event stream as ODF"""
-    def __init__(self, document, break_master=None, content_master=None):
+    def __init__(self,
+                 document,
+                 break_master=None,
+                 breakheader_size=None,
+                 breakheader_position=None,
+                 content_master=None,
+                 header_size=None,
+                 header_position=None,
+                 outline_size=None,
+                 outline_position=None):
         mistune.Renderer.__init__(self)
         self.formatter = ODFFormatter(style='colorful')
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.break_master = 'Default' if break_master is None else break_master
-        self.content_master = 'Default' if (break_master
+        self.breakheader_size=(u'20cm', u'3cm') if (breakheader_size
+                                                    is None) else breakheader_size
+        self.breakheader_position=(u'2cm', u'8cm') if (breakheader_position
+                                                       is None) else breakheader_position
+        self.content_master = 'Default' if (content_master
                                             is None) else content_master
+        self.header_size=(u'20cm', u'3cm') if (header_size
+                                               is None) else header_size
+        self.header_position=(u'2cm', u'0.5cm') if (header_position
+                                                    is None) else header_position
+        self.outline_size=(u'22cm', u'12cm') if (outline_size
+                                                 is None) else outline_size
+        self.outline_position=(u'2cm', u'4cm') if (outline_position
+                                                   is None) else outline_position
 
         # font/char styles
         self.document.insert_style(
@@ -440,7 +474,7 @@ class ODFRenderer(mistune.Renderer):
         self.formatter.add_style_defs(document)
 
     def placeholder(self):
-        return ODFPartialTree([])
+        return ODFPartialTree([], self)
 
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'md2odp-ParagraphCodeStyle')
@@ -452,7 +486,7 @@ class ODFRenderer(mistune.Renderer):
 
         for span in self.formatter.format(lexer.get_tokens(code)):
             para.append(span)
-        return ODFPartialTree([para])
+        return ODFPartialTree([para], self)
 
     def header(self, text, level, raw=None):
         page = None
@@ -466,8 +500,10 @@ class ODFRenderer(mistune.Renderer):
                 odf_create_text_frame(
                     wrap_spans(text.get()),
                     presentation_style=u'md2odp-BreakTitleText',
-                    size=(u'20cm', u'3cm'),
-                    position=(u'2cm', u'8cm'),
+                    size=(u'%s' % self.breakheader_size[0],
+                          u'%s' % self.breakheader_size[1]),
+                    position=(u'%s' % self.breakheader_position[0],
+                              u'%s' % self.breakheader_position[1]),
                     presentation_class=u'title'))
         elif level == 2:
             page = odf_create_draw_page(
@@ -479,13 +515,15 @@ class ODFRenderer(mistune.Renderer):
                 odf_create_text_frame(
                     wrap_spans(text.get()),
                     presentation_style=u'md2odp-TitleText',
-                    size=(u'20cm', u'3cm'),
-                    position=(u'2cm', u'0.5cm'),
+                    size=(u'%s' % self.header_size[0],
+                          u'%s' % self.header_size[1]),
+                    position=(u'%s' % self.header_position[0],
+                              u'%s' % self.header_position[1]),
                     presentation_class = u'title'))
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
 
-        return ODFPartialTree([page])
+        return ODFPartialTree([page], self)
 
     def block_quote(self, text):
         para = odf_create_paragraph(style=u'md2odp-ParagraphQuoteStyle')
@@ -505,13 +543,13 @@ class ODFRenderer(mistune.Renderer):
         # pylint: disable=maybe-no-member
         para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
         para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
-        return ODFPartialTree([para])
+        return ODFPartialTree([para], self)
 
     def list_item(self, text):
         item = odf_create_list_item()
         for elem in wrap_spans(text.get()):
             item.append(elem)
-        return ODFPartialTree([item])
+        return ODFPartialTree([item], self)
 
     def list(self, body, ordered=True):
         # TODO: reverse-engineer magic to convert outline style to
@@ -519,7 +557,7 @@ class ODFRenderer(mistune.Renderer):
         lst = odf_create_list(style=u'L1' if ordered else u'OutlineListStyle')
         for elem in body.get():
             lst.append(elem)
-        return ODFPartialTree([lst])
+        return ODFPartialTree([lst], self)
 
     def paragraph(self, text):
         # images? insert as standalone frame, no inline img
@@ -532,7 +570,7 @@ class ODFRenderer(mistune.Renderer):
             span = odf_create_element('text:span')
             for elem in text.get():
                 span.append(elem)
-            return ODFPartialTree([span])
+            return ODFPartialTree([span], self)
 
     def table(self, header, body):
         pass
@@ -548,13 +586,13 @@ class ODFRenderer(mistune.Renderer):
         if is_email:
             link = 'mailto:%s' % link
         lnk = odf_create_link(link, text=unicode(text))
-        return ODFPartialTree([lnk])
+        return ODFPartialTree([lnk], self)
 
     def link(self, link, title, content):
         lnk = odf_create_link(link,
                               text=content.get()[0].get_text(),
                               title=unicode(title))
-        return ODFPartialTree([lnk])
+        return ODFPartialTree([lnk], self)
 
     def codespan(self, text):
         span = odf_create_element('text:span')
@@ -565,7 +603,7 @@ class ODFRenderer(mistune.Renderer):
         else:
             for elem in text.get():
                 span.append(elem)
-        return ODFPartialTree([span])
+        return ODFPartialTree([span], self)
 
     def double_emphasis(self, text):
         span = odf_create_element('text:span')
@@ -573,7 +611,7 @@ class ODFRenderer(mistune.Renderer):
         span.set_style('md2odp-TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        return ODFPartialTree([span])
+        return ODFPartialTree([span], self)
 
     def emphasis(self, text):
         span = odf_create_element('text:span')
@@ -581,7 +619,7 @@ class ODFRenderer(mistune.Renderer):
         span.set_style('md2odp-TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        return ODFPartialTree([span])
+        return ODFPartialTree([span], self)
 
     def image(self, src, title, alt_text):
         # embed picture - TODO: optionally just link it
@@ -639,10 +677,10 @@ class ODFRenderer(mistune.Renderer):
                                         media_type[0])
         self.document.set_part(fragment_name,
                                imagedata)
-        return ODFPartialTree([frame])
+        return ODFPartialTree([frame], self)
 
     def linebreak(self):
-        return ODFPartialTree([odf_create_line_break()])
+        return ODFPartialTree([odf_create_line_break()], self)
 
     def tag(self, html):
         pass
@@ -696,9 +734,49 @@ def main():
             print ' - ' + i
         return
 
+    breakheader_size = None
+    breakheader_position = None
+    header_size = None
+    header_position = None
+    outline_size = None
+    outline_position = None
+
+    # extract position and size of master page placeholders
+    for page in master_pages:
+        master_name = page.get_attribute('style:name')
+        if master_name == args.break_master:
+            frames = page.get_elements('descendant::draw:frame')
+            for frame in frames:
+                attr = frame.get_attribute('presentation:class')
+                if attr is not None and attr == 'title':
+                    breakheader_size = (frame.get_attribute('svg:width'),
+                                        frame.get_attribute('svg:height'))
+                    breakheader_position = (frame.get_attribute('svg:x'),
+                                            frame.get_attribute('svg:y'))
+        elif master_name == args.content_master:
+            frames = page.get_elements('descendant::draw:frame')
+            for frame in frames:
+                attr = frame.get_attribute('presentation:class')
+                if attr is not None and attr == 'title':
+                    header_size = (frame.get_attribute('svg:width'),
+                                   frame.get_attribute('svg:height'))
+                    header_position = (frame.get_attribute('svg:x'),
+                                       frame.get_attribute('svg:y'))
+                elif attr is not None and attr == 'outline':
+                    outline_size = (frame.get_attribute('svg:width'),
+                                    frame.get_attribute('svg:height'))
+                    outline_position = (frame.get_attribute('svg:x'),
+                                        frame.get_attribute('svg:y'))
+
     odf_renderer = ODFRenderer(presentation,
                                break_master=args.break_master,
-                               content_master=args.content_master)
+                               breakheader_size=breakheader_size,
+                               breakheader_position=breakheader_position,
+                               content_master=args.content_master,
+                               header_size=header_size,
+                               header_position=header_position,
+                               outline_size=outline_size,
+                               outline_position=outline_position)
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
     doc_elems = presentation.get_body()

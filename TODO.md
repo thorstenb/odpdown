@@ -7,13 +7,13 @@
 * before adding new styles, check for existing ones (adding multiple
   markdown snippets might have actually resulted our input odp file
   being an earlier md2odp output)
-* take text frame dimensions from master page placeholder objects
 * add automatic title slide
   inspired by http://johnmacfarlane.net/pandoc/README.html#command-line-options
   and the pandoc_title_block extension
       % title
       % author(s) (separated by semicolons)
       % date
+* fix open issues: https://github.com/thorstenb/odpgen/issues
 
 ## Easy hacks
 
