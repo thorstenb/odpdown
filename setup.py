@@ -18,6 +18,7 @@ setup(name='odpgenerator',
           'mistune>=0.5',
           'lpod-python>=1.1.6',
           'pygments>=2.0',
+          'pillow>=2.0',
       ],
       classifiers=[
           'Development Status :: 4 - Beta',
@@ -28,4 +29,5 @@ setup(name='odpgenerator',
           'Programming Language :: Python',
           'Topic :: Multimedia :: Graphics :: Presentation',
           'Topic :: Software Development :: Documentation',
-          'Topic :: Office/Business'])
+          'Topic :: Office/Business'
+      ])

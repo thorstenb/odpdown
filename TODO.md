@@ -4,13 +4,10 @@
 
 * add a metric ton of options for all the hard-coded decisions in the
   code (autofit, which styles, syntax highlight colours etc etc)
-* images:
-  * keep aspect ratio
-  * add caption bottom/right. e.g. via the following draw style for
-    the image frame:
-        <style:style style:name="bla" style:family="graphic" style:parent-style-name="whatevar">
-         <style:graphic-properties draw:stroke="none" draw:fill="none" draw:textarea-horizontal-align="right" draw:textarea-vertical-align="bottom" style:mirror="none"/>
-        </style:style>
+* before adding new styles, check for existing ones (adding multiple
+  markdown snippets might have actually resulted our input odp file
+  being an earlier md2odp output)
+* take text frame dimensions from master page placeholder objects
 * add automatic title slide
   inspired by http://johnmacfarlane.net/pandoc/README.html#command-line-options
   and the pandoc_title_block extension

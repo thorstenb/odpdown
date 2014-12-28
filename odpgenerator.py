@@ -403,6 +403,12 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_top': u'0.6cm',
                                   'margin_bottom': u'0.6cm',
                                   'text_indent': u'0cm'})])
+        # graphic styles
+        add_style(document, 'graphic', u'md2odp-ImageStyle',
+                  [('graphic', {'stroke': u'none',
+                                'fille':  u'none',
+                                'draw:textarea_horizontal_align': u'right',
+                                'draw:textarea-vertical-align':   u'bottom'})])
 
         # presentation styles
         add_style(document, 'presentation', u'md2odp-OutlineText',
@@ -582,18 +588,57 @@ class ODFRenderer(mistune.Renderer):
         media_type = guess_type(src)
         fragment_name = 'Pictures/' + urlparse.urlparse(src)[2].split('/')[-1]
 
+        imagedata = urlopen(src).read()
+        try:
+            if not fragment_name.endswith('.svg'):
+                # delay our PIL dependency until really needed
+                from PIL import Image
+                import cStringIO
+
+                imagefile = cStringIO.StringIO(imagedata)
+
+                # obtain image aspect ratio
+                image_w, image_h = Image.open(imagefile).size
+            else:
+                # PIL does not really support svg, so let's try heuristics
+                # & find the aspect ratio ourselves
+                from BeautifulSoup import BeautifulSoup
+
+                imagefile = BeautifulSoup(imagedata)
+                image_w = int(imagefile.svg['width'])
+                image_h = int(imagefile.svg['height'])
+        except:
+            # unable to extract aspect ratio
+            image_w, image_h = (100, 100)
+
+        image_ratio = image_w / float(image_h)
+
+        frame_x, frame_y = (2,4)
+        frame_w, frame_h = (22, 12)
+        frame_ratio = frame_w / float(frame_h)
+
+        if image_ratio > frame_ratio:
+            image_w = frame_w
+            image_h = int(frame_w / image_ratio)
+            frame_y += (frame_h - image_h) / 2
+        else:
+            image_w = int(frame_h * image_ratio)
+            image_h = frame_h
+            frame_x += (frame_w - image_w) / 2
+
         frame = odf_create_image_frame(
             fragment_name,
             text=unicode(title),
-            size=(u'22cm', u'12cm'),
-            position=(u'2cm', u'4cm'),
+            style=u'md2odp-ImageStyle',
+            size=(u'%dcm' % image_w, u'%dcm' % image_h),
+            position=(u'%dcm' % frame_x, u'%dcm' % frame_y),
             presentation_class=u'graphic')
         frame.set_svg_description(unicode(alt_text))
 
         self.doc_manifest.add_full_path(fragment_name,
                                         media_type[0])
         self.document.set_part(fragment_name,
-                               urlopen(src).read())
+                               imagedata)
         return ODFPartialTree([frame])
 
     def linebreak(self):
