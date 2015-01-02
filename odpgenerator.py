@@ -704,7 +704,8 @@ def main():
                         help='Output ODP file')
     parser.add_argument('-p', '--page', default=-1, type=int,
                         help='Append markdown after given page. Negative '
-                        'numbers count from the end of the slide stack')
+                        'numbers count from the end of the slide stack. '
+                        '[Defaults to -1]')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
                         help='Use this master page for the 1st level'
                         ' headlines. List available ones if called with empty'
