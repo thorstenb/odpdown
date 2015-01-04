@@ -32,7 +32,9 @@ On Windows, run it via the command prompt (Start ‣ Accessories):
 
 Alternatively, running `odpgenerator.py` directly from the git
 checkout is also possible, provided you've installed the prerequisites
-(most significantly lpod, pygments and pillow) manually.
+(most significantly lpod, pygments and pillow) manually. Make sure to
+run `git submodule update --init` once in the toplevel checkout
+directory though.
 
 ## Usage
 
