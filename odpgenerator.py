@@ -71,6 +71,17 @@ __all__ = [
     'ODFPartialTree', 'ODFPartialTree',
 ]
 
+_master_page_spew = '''
+Available master page names in template:
+----------------------------------------
+
+    For  visual  inspection,  select  View->Master->Slide  Master  in
+    Impress. The names listed below are the slide names of the master
+    pages you  see in the  slide preview  pane. Hover over  the slide
+    thumbnails to  have them  displayed, right-click and  pick Rename
+    Master to choose more speaking names.
+
+'''.strip()
 
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name,
@@ -729,8 +740,7 @@ def main():
         or (args.content_master is not None
             and args.content_master not in master_names)):
 
-        print 'Available master page names in template:'
-        print '----------------------------------------'
+        print _master_page_spew + '\n'
         for i in master_names:
             print ' - ' + i
         return
