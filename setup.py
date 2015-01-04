@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 from odpgenerator import __version__
 
 setup(name='odpgenerator',

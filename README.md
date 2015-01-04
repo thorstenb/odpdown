@@ -18,6 +18,22 @@ CI-compliant and lovely-artsy Impress template. Including
 syntax-highlighted code snippets of your latest hack, auto-fitted into
 the slides.
 
+## Installation
+
+Getting ready should be a simple matter of running
+
+    python setup.py install
+
+from a terminal.
+
+On Windows, run it via the command prompt (Start ‣ Accessories):
+
+    setup.py install
+
+Alternatively, running `odpgenerator.py` directly from the git
+checkout is also possible, provided you've installed the prerequisites
+(most significantly lpod, pygments and pillow) manually.
+
 ## Usage
 
 	usage: odpgenerator.py [-h] [-p PAGE] [--break-master [BREAK_MASTER]]
