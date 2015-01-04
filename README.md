@@ -34,7 +34,8 @@ the slides.
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -p PAGE, --page PAGE  Append markdown after given page. Negative numbers
-							count from the end of the slide stack
+							count from the end of the slide stack. [Defaults to
+							-1]
 	  --break-master [BREAK_MASTER]
 							Use this master page for the 1st level headlines. List
 							available ones if called with empty or unknown name
