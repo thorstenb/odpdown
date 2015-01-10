@@ -129,10 +129,12 @@ class ODFPartialTree:
         self.outline_size = outline_size
         self.outline_position = outline_position
 
-    def __init__(self, elements, metrics_provider):
-        self._elements = elements
-        self.outline_size = metrics_provider.outline_size
-        self.outline_position = metrics_provider.outline_position
+    @classmethod
+    def from_metrics_provider(cls, elements, metrics_provider):
+        """Initialize ODFPartialTree from a metrics provider"""
+        return cls(elements,
+                   metrics_provider.outline_size,
+                   metrics_provider.outline_position)
 
     def add_child_elems(self, elems):
         """Helper to add elems to self as children"""
@@ -486,7 +488,7 @@ class ODFRenderer(mistune.Renderer):
         self.formatter.add_style_defs(document)
 
     def placeholder(self):
-        return ODFPartialTree([], self)
+        return ODFPartialTree.from_metrics_provider([], self)
 
     def block_code(self, code, language=None):
         para = odf_create_paragraph(style=u'md2odp-ParagraphCodeStyle')
@@ -498,7 +500,7 @@ class ODFRenderer(mistune.Renderer):
 
         for span in self.formatter.format(lexer.get_tokens(code)):
             para.append(span)
-        return ODFPartialTree([para], self)
+        return ODFPartialTree.from_metrics_provider([para], self)
 
     def header(self, text, level, raw=None):
         page = None
@@ -535,7 +537,7 @@ class ODFRenderer(mistune.Renderer):
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
 
-        return ODFPartialTree([page], self)
+        return ODFPartialTree.from_metrics_provider([page], self)
 
     def block_quote(self, text):
         para = odf_create_paragraph(style=u'md2odp-ParagraphQuoteStyle')
@@ -555,13 +557,13 @@ class ODFRenderer(mistune.Renderer):
         # pylint: disable=maybe-no-member
         para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
         para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
-        return ODFPartialTree([para], self)
+        return ODFPartialTree.from_metrics_provider([para], self)
 
     def list_item(self, text):
         item = odf_create_list_item()
         for elem in wrap_spans(text.get()):
             item.append(elem)
-        return ODFPartialTree([item], self)
+        return ODFPartialTree.from_metrics_provider([item], self)
 
     def list(self, body, ordered=True):
         # TODO: reverse-engineer magic to convert outline style to
@@ -569,7 +571,7 @@ class ODFRenderer(mistune.Renderer):
         lst = odf_create_list(style=u'L1' if ordered else u'OutlineListStyle')
         for elem in body.get():
             lst.append(elem)
-        return ODFPartialTree([lst], self)
+        return ODFPartialTree.from_metrics_provider([lst], self)
 
     def paragraph(self, text):
         # images? insert as standalone frame, no inline img
@@ -582,7 +584,7 @@ class ODFRenderer(mistune.Renderer):
             span = odf_create_element('text:span')
             for elem in text.get():
                 span.append(elem)
-            return ODFPartialTree([span], self)
+            return ODFPartialTree.from_metrics_provider([span], self)
 
     def table(self, header, body):
         pass
@@ -598,13 +600,13 @@ class ODFRenderer(mistune.Renderer):
         if is_email:
             link = 'mailto:%s' % link
         lnk = odf_create_link(link, text=unicode(text))
-        return ODFPartialTree([lnk], self)
+        return ODFPartialTree.from_metrics_provider([lnk], self)
 
     def link(self, link, title, content):
         lnk = odf_create_link(link,
                               text=content.get()[0].get_text(),
                               title=unicode(title))
-        return ODFPartialTree([lnk], self)
+        return ODFPartialTree.from_metrics_provider([lnk], self)
 
     def codespan(self, text):
         span = odf_create_element('text:span')
@@ -615,7 +617,7 @@ class ODFRenderer(mistune.Renderer):
         else:
             for elem in text.get():
                 span.append(elem)
-        return ODFPartialTree([span], self)
+        return ODFPartialTree.from_metrics_provider([span], self)
 
     def double_emphasis(self, text):
         span = odf_create_element('text:span')
@@ -623,7 +625,7 @@ class ODFRenderer(mistune.Renderer):
         span.set_style('md2odp-TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        return ODFPartialTree([span], self)
+        return ODFPartialTree.from_metrics_provider([span], self)
 
     def emphasis(self, text):
         span = odf_create_element('text:span')
@@ -631,7 +633,7 @@ class ODFRenderer(mistune.Renderer):
         span.set_style('md2odp-TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
-        return ODFPartialTree([span], self)
+        return ODFPartialTree.from_metrics_provider([span], self)
 
     def image(self, src, title, alt_text):
         # embed picture - TODO: optionally just link it
@@ -689,10 +691,11 @@ class ODFRenderer(mistune.Renderer):
                                         media_type[0])
         self.document.set_part(fragment_name,
                                imagedata)
-        return ODFPartialTree([frame], self)
+        return ODFPartialTree.from_metrics_provider([frame], self)
 
     def linebreak(self):
-        return ODFPartialTree([odf_create_line_break()], self)
+        return ODFPartialTree.from_metrics_provider([odf_create_line_break()],
+                                                    self)
 
     def tag(self, html):
         pass
