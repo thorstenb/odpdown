@@ -1,0 +1,29 @@
+v0.2.0
+ - State default value for --page
+ - Fix pypi/module config errors, add module requirements
+ - Prefix generated style name with (more) unique prefix.
+ - Insert images now w/ correct aspect ratio and caption now
+ - Take positions of presentation text objects from master.
+ - Fixes #6 - explain where master page names come from.
+ - Fixes #5 - provide installation instructions.
+
+v0.1.0
+ - Implement embedded images.
+ - Working syntax highlighting for code blocks
+ - Fix whitespace / tab handling for block code.
+ - Go with more colourful syntax highlight defaults.
+ - Enable autofit for all outline paragraphs.
+ - Implement parameterizable master page usage.
+
+v0.0.5
+ - Some fixes so 'python setup.py bdist_rpm' works
+ - Fix link generation and block_code linebreaks
+ - Add option parsing, add option to insert at specific slide index.
+ - Get us proper monospaced font, that looks good for code
+ - Fix annoying extra linefeeds in code paragraphs.
+ - Fix link output, fix list style used for outline
+ - Too many whitespace issues - quickfix no pretty-printing
+
+v0.0.1
+ - Fix style use - need master page style matching pres class.
+ - First reasonably working version of odpgenerator
