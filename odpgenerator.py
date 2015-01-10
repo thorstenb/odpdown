@@ -83,6 +83,7 @@ Available master page names in template:
 
 '''.strip()
 
+
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name,
               properties, parent=None):
@@ -382,20 +383,20 @@ class ODFRenderer(mistune.Renderer):
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.break_master = 'Default' if break_master is None else break_master
-        self.breakheader_size=(u'20cm', u'3cm') if (breakheader_size
-                                                    is None) else breakheader_size
-        self.breakheader_position=(u'2cm', u'8cm') if (breakheader_position
-                                                       is None) else breakheader_position
+        self.breakheader_size = (u'20cm', u'3cm') if (breakheader_size
+                                                      is None) else breakheader_size
+        self.breakheader_position = (u'2cm', u'8cm') if (breakheader_position
+                                                         is None) else breakheader_position
         self.content_master = 'Default' if (content_master
                                             is None) else content_master
-        self.header_size=(u'20cm', u'3cm') if (header_size
-                                               is None) else header_size
-        self.header_position=(u'2cm', u'0.5cm') if (header_position
-                                                    is None) else header_position
-        self.outline_size=(u'22cm', u'12cm') if (outline_size
-                                                 is None) else outline_size
-        self.outline_position=(u'2cm', u'4cm') if (outline_position
-                                                   is None) else outline_position
+        self.header_size = (u'20cm', u'3cm') if (header_size
+                                                 is None) else header_size
+        self.header_position = (u'2cm', u'0.5cm') if (header_position
+                                                      is None) else header_position
+        self.outline_size = (u'22cm', u'12cm') if (outline_size
+                                                   is None) else outline_size
+        self.outline_position = (u'2cm', u'4cm') if (outline_position
+                                                     is None) else outline_position
 
         # font/char styles
         self.document.insert_style(
@@ -662,7 +663,7 @@ class ODFRenderer(mistune.Renderer):
 
         image_ratio = image_w / float(image_h)
 
-        frame_x, frame_y = (2,4)
+        frame_x, frame_y = (2, 4)
         frame_w, frame_h = (22, 12)
         frame_ratio = frame_w / float(frame_h)
 
