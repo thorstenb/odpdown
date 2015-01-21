@@ -164,6 +164,24 @@ There "is" <some> & 'the' other to escape
 
 
 @with_setup(setup)
+def test_nested_emphasis():
+    markdown = '''
+## Heading
+
+***triple emphasis***
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert (odf.get()[0].get_elements('descendant::text:span')[2].get_attribute(
+        'text:style-name') == 'md2odp-TextDoubleEmphasisStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_attribute(
+        'text:style-name') == 'md2odp-TextEmphasisStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[4].get_text() ==
+            'triple emphasis')
+
+
+@with_setup(setup)
 def test_code_block():
     markdown = '''
 ## Heading

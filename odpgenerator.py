@@ -414,8 +414,7 @@ class ODFRenderer(mistune.Renderer):
         add_style(document, 'text', u'md2odp-TextEmphasisStyle',
                   [('text', {'font_style': u'italic'})])
         add_style(document, 'text', u'md2odp-TextDoubleEmphasisStyle',
-                  [('text', {'font_style': u'italic',
-                             'font_weight': u'bold'})])
+                  [('text', {'font_weight': u'bold'})])
         add_style(document, 'text', u'md2odp-TextQuoteStyle',
                   # TODO: font size increase does not work currently
                   # Bug in Impress:
