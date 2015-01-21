@@ -124,6 +124,30 @@ def test_items_page():
 
 
 @with_setup(setup)
+def test_empty_list_items_page():
+    markdown = '''
+## Heading
+
+* a
+* 
+* c
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
+            'Heading')
+    items = odf.get()[0].get_elements('descendant::text:list-item')
+    assert len(items) == 3
+    assert items[0].get_elements(
+        'descendant::text:span')[0].get_text() == 'a'
+    assert len(items[1].get_elements(
+        'descendant::text:span')) == 0
+    assert items[2].get_elements(
+        'descendant::text:span')[0].get_text() == 'c'
+
+
+@with_setup(setup)
 def test_code_block():
     markdown = '''
 ## Heading
