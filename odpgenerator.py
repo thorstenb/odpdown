@@ -679,14 +679,16 @@ class ODFRenderer(mistune.Renderer):
             image_h = frame_h
             frame_x += (frame_w - image_w) / 2
 
-        frame = odf_create_image_frame(
-            fragment_name,
-            text=unicode(title),
-            style=u'md2odp-ImageStyle',
-            size=(u'%dcm' % image_w, u'%dcm' % image_h),
-            position=(u'%dcm' % frame_x, u'%dcm' % frame_y),
-            presentation_class=u'graphic')
-        frame.set_svg_description(unicode(alt_text))
+        args = {'style': u'md2odp-ImageStyle',
+                'size': (u'%dcm' % image_w, u'%dcm' % image_h),
+                'position': (u'%dcm' % frame_x, u'%dcm' % frame_y),
+                'presentation_class': u'graphic'}
+        if title is not None:
+            args['text'] = unicode(title)
+        frame = odf_create_image_frame(fragment_name, **args)
+
+        if alt_text is not None:
+            frame.set_svg_description(unicode(alt_text))
 
         self.doc_manifest.add_full_path(fragment_name,
                                         media_type[0])

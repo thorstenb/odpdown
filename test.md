@@ -45,6 +45,10 @@ Note: this is **important** as "blafasl" uses <short> hostnames.
 
 ![This is alt text](http://upload.wikimedia.org/wikipedia/commons/0/02/LibreOffice_Logo_Flat.svg "This is optional title for a direct img")
 
+## Test image 2
+
+![This is alt text](http://upload.wikimedia.org/wikipedia/commons/0/02/LibreOffice_Logo_Flat.svg)
+
 ## Test image ref
 
 ![This is alt text][1]
