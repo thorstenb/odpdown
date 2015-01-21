@@ -35,6 +35,7 @@
 
 import odpgenerator
 import mistune
+import codecs
 from lpod.document import odf_new_document
 from lpod.draw_page import odf_draw_page
 from nose.tools import with_setup, raises
@@ -191,6 +192,6 @@ void main()
 @with_setup(setup)
 def test_complex():
     # read more complex doc from disk. simply don't crash...
-    markdown = open('test.md').read()
+    markdown = codecs.open('test.md', 'r', encoding='utf-8').read()
     odf = mkdown.render(markdown)
     pass

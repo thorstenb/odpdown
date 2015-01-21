@@ -14,7 +14,7 @@ Note: this is **important** as "blafasl" uses <short> hostnames.
 
 * Install this and that, and add the wombat ISO on top
 * Add test user to each item - `$ blafasl` for example
-  * sub item
+  * sub item - this is ™ me
 
 ~~~ bash
       # rm -rf /

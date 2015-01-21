@@ -43,6 +43,7 @@
 import mistune
 import argparse
 import urlparse
+import codecs
 import re
 
 from urllib import urlopen
@@ -184,7 +185,7 @@ class ODFPartialTree:
         tmp = ODFPartialTree(list(self._elements),
                              self.outline_size,
                              self.outline_position)
-        if isinstance(other, str):
+        if isinstance(other, basestring):
             tmp.add_text(other)
         else:
             tmp.add_child_elems(other.get())
@@ -192,7 +193,7 @@ class ODFPartialTree:
 
     def __iadd__(self, other):
         """Override of +="""
-        if isinstance(other, str):
+        if isinstance(other, basestring):
             self.add_text(other)
         else:
             self.add_child_elems(other.get())
@@ -612,7 +613,7 @@ class ODFRenderer(mistune.Renderer):
         span = odf_create_element('text:span')
         # pylint: disable=maybe-no-member
         span.set_style('md2odp-TextCodeStyle')
-        if isinstance(text, str):
+        if isinstance(text, basestring):
             span.set_text(unicode(text))
         else:
             for elem in text.get():
@@ -712,7 +713,6 @@ def main():
     parser = argparse.ArgumentParser(
         description='Convert markdown text into OpenDocument presentations')
     parser.add_argument('input_md',
-                        type=argparse.FileType('r'),
                         help='Input markdown file')
     parser.add_argument('template_odp',
                         type=argparse.FileType('r'),
@@ -734,7 +734,7 @@ def main():
                         ' empty or unknown name')
     args = parser.parse_args()
 
-    markdown = args.input_md
+    markdown = codecs.open(args.input_md, 'r', encoding='utf-8')
     odf_in = args.template_odp
     odf_out = args.output_odp
     presentation = odf_get_document(odf_in)
