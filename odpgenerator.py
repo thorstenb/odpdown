@@ -703,6 +703,9 @@ class ODFRenderer(mistune.Renderer):
     def strikethrough(self, text):
         pass
 
+    def text(self, text):
+        return text
+
 
 def main():
     """Command-line conversion tool"""

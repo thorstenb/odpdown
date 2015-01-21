@@ -148,6 +148,25 @@ def test_empty_list_items_page():
 
 
 @with_setup(setup)
+def test_xml_entity_escaping():
+    markdown = '''
+## Heading
+
+There "is" <some> & 'the' other to escape
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
+            'Heading')
+    # mistune splits text at '<', so we get two spans here
+    assert (odf.get()[0].get_elements('descendant::text:span')[2].get_text() ==
+            'There "is" ')
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
+            '<some> & \'the\' other to escape')
+
+
+@with_setup(setup)
 def test_code_block():
     markdown = '''
 ## Heading

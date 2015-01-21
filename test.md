@@ -8,7 +8,7 @@ Example setup per host:
        Hostname funny-3.example.com
        User test
 
-Note: this is **important** as "blafasl" uses short hostnames.
+Note: this is **important** as "blafasl" uses <short> hostnames.
 
 ## Some outline text
 
