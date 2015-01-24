@@ -44,6 +44,7 @@ import mistune
 import argparse
 import urlparse
 import codecs
+import sys
 import re
 
 from urllib import urlopen
@@ -735,7 +736,8 @@ def main():
                         ' empty or unknown name')
     args = parser.parse_args()
 
-    markdown = codecs.open(args.input_md, 'r', encoding='utf-8')
+    markdown = (codecs.getreader("utf-8")(sys.stdin) if args.input_md == '-'
+                else codecs.open(args.input_md, 'r', encoding='utf-8'))
     odf_in = args.template_odp
     odf_out = args.output_odp
     presentation = odf_get_document(odf_in)

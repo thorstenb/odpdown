@@ -1,0 +1,1 @@
+  $ $TESTDIR/../odpgenerator.py -p 1 $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides1.odp && test -n $CRAMTMP/out_slides1.odp && $TESTDIR/../odpgenerator.py -p 12 $TESTDIR/test.md $CRAMTMP/out_slides1.odp $CRAMTMP/out_slides2.odp && test -n $CRAMTMP/out_slides2.odp
