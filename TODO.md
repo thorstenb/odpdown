@@ -13,6 +13,8 @@
       % title
       % author(s) (separated by semicolons)
       % date
+  also interesting for inspiration:
+  http://kramdown.gettalong.org/syntax.html#non-content-elements
 * fix open issues: https://github.com/thorstenb/odpgen/issues
 
 ## Easy hacks
