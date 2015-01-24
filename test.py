@@ -206,6 +206,6 @@ void main()
 @with_setup(setup)
 def test_complex():
     # read more complex doc from disk. simply don't crash...
-    markdown = codecs.open('test.md', 'r', encoding='utf-8').read()
+    markdown = codecs.open('cramtest/test.md', 'r', encoding='utf-8').read()
     odf = mkdown.render(markdown)
     pass
