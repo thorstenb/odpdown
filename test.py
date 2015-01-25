@@ -209,3 +209,21 @@ def test_complex():
     markdown = codecs.open('cramtest/test.md', 'r', encoding='utf-8').read()
     odf = mkdown.render(markdown)
     pass
+
+
+@with_setup(setup)
+def test_svg1():
+    markdown = '''
+## Heading
+
+![This is alt text](cramtest/test.svg)
+
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert odf.get()[0].get_elements('descendant::draw:frame')[1].get_attribute(
+        'svg:width') == '22cm'
+    assert odf.get()[0].get_elements('descendant::draw:frame')[1].get_attribute(
+        'svg:height') == '9cm'
+    assert len(odf.get()[0].get_elements('descendant::draw:image')) == 1

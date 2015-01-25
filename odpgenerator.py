@@ -658,8 +658,8 @@ class ODFRenderer(mistune.Renderer):
                 from BeautifulSoup import BeautifulSoup
 
                 imagefile = BeautifulSoup(imagedata)
-                image_w = int(imagefile.svg['width'])
-                image_h = int(imagefile.svg['height'])
+                image_w = float(imagefile.svg['width'])
+                image_h = float(imagefile.svg['height'])
         except:
             # unable to extract aspect ratio
             image_w, image_h = (100, 100)
