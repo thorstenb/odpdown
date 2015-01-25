@@ -16,6 +16,12 @@
   also interesting for inspiration:
   http://kramdown.gettalong.org/syntax.html#non-content-elements
 * fix open issues: https://github.com/thorstenb/odpgen/issues
+* implement proper block quotes. see e.g.
+  https://bitbucket.org/tutorials/markdowndemo/overview#markdown-header-paragraphs-and-blockquotes
+  - our current implementation does not even handle nested quotes
+  properly, let alone nested lists etc (odf cannot nest
+  non-paragraph-content inside text:p, which the current
+  implementation tries to do)
 
 ## Easy hacks
 
