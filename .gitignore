@@ -1,4 +1,5 @@
 *~
+*t.err
 *.pyc
 dist/
 build/
