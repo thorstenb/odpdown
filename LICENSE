@@ -35,7 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 Attribution: use of lpod inspired by Bart Hanssens' odflinkchecker.py,
 https://lists.oasis-open.org/archives/opendocument-users/201008/msg00004.html
-and the lpod-python-recipes
+(BSD), and the lpod-python-recipes (CC-BY 3.0, w/o required attribution)
+
+Parts of ODFFormatter from
+http://pygments.org/docs/formatterdevelopment (BSD)
 
 --
 
