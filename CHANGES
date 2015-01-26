@@ -1,3 +1,13 @@
+v0.3.0
+ - Fixes #8 - don't trip over empty list item case.
+ - Fixes #10 - don't use default mistune escaping-text-output.
+ - Fixes #13 - make input markdown code unicode-safe.
+ - Fixes #14 - only add title and alt_text if they're actually given
+ - Fixes #11 - double-emphasis is only bold, not bold-italic.
+ - Fixes #18 - special-case '-' again on the cmdline.
+ - Fix problem with fractional svg box dimensions.
+ - Add options for autofit and pygments highlight style.
+
 v0.2.0
  - State default value for --page
  - Fix pypi/module config errors, add module requirements
