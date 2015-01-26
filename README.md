@@ -38,9 +38,10 @@ directory though.
 
 ## Usage
 
-	usage: odpgenerator.py [-h] [-p PAGE] [--break-master [BREAK_MASTER]]
-						   [--content-master [CONTENT_MASTER]]
-						   input_md template_odp output_odp
+	usage: odpgenerator.py [-h] [-p PAGE] [-a AUTOFIT] [-s HIGHLIGHT_STYLE]
+	                       [--break-master [BREAK_MASTER]]
+	                       [--content-master [CONTENT_MASTER]]
+	                       input_md template_odp output_odp
 
 	Convert markdown text into OpenDocument presentations
 
@@ -52,15 +53,25 @@ directory though.
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -p PAGE, --page PAGE  Append markdown after given page. Negative numbers
-							count from the end of the slide stack. [Defaults to
-							-1]
+	                        count from the end of the slide stack. [Defaults to
+	                        -1]
+	  -n, --no-autofit      Use to disable auto-shrinking font in text boxes, to
+	                        fit available space.
+	  -a AUTOFIT, --autofit AUTOFIT
+	                        Set to "False" to disable auto-shrinking font in text
+	                        boxes, to fit available space. [Defaults to True]
+	  -s HIGHLIGHT_STYLE, --highlight-style HIGHLIGHT_STYLE
+	                        Set pygments color style for syntax-highlighting of
+	                        code snippets. Available styles in stock pygments are:
+	                        "default", "emacs", "friendly", and "colorful".
+	                        [Defaults to colorful]
 	  --break-master [BREAK_MASTER]
-							Use this master page for the 1st level headlines. List
-							available ones if called with empty or unknown name
+	                        Use this master page for the 1st level headlines. List
+	                        available ones if called with empty or unknown name
 	  --content-master [CONTENT_MASTER]
-							Use this master page for the 2nd level headlines and
-							content. List available ones if called with empty or
-							unknown name
+	                        Use this master page for the 2nd level headlines and
+	                        content. List available ones if called with empty or
+	                        unknown name
 
 ## Example
 

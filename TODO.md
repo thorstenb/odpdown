@@ -2,11 +2,10 @@
 
 ## Features
 
-* add a metric ton of options for all the hard-coded decisions in the
-  code (autofit, which styles, syntax highlight colours etc etc)
 * before adding new styles, check for existing ones (adding multiple
   markdown snippets might have actually resulted our input odp file
   being an earlier md2odp output)
+  * corollary: be able to synthesize plain odp file w/o a template
 * add automatic title slide
   inspired by http://johnmacfarlane.net/pandoc/README.html#command-line-options
   and the pandoc_title_block extension

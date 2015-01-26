@@ -381,9 +381,11 @@ class ODFRenderer(mistune.Renderer):
                  header_size=None,
                  header_position=None,
                  outline_size=None,
-                 outline_position=None):
+                 outline_position=None,
+                 highlight_style='colorful',
+                 autofit_text=True):
         mistune.Renderer.__init__(self)
-        self.formatter = ODFFormatter(style='colorful')
+        self.formatter = ODFFormatter(style=highlight_style)
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.break_master = 'Default' if break_master is None else break_master
@@ -455,7 +457,10 @@ class ODFRenderer(mistune.Renderer):
 
         # presentation styles
         add_style(document, 'presentation', u'md2odp-OutlineText',
-                  [('graphic', {'draw:fit_to_size': u'shrink-to-fit'})],
+                  ([('graphic',
+                     {'draw:fit_to_size': u'shrink-to-fit'})] if autofit_text
+                   else [('graphic',
+                          {'draw:auto_grow_height': u'true'})]),
                   self.content_master + '-outline1')
         add_style(document, 'presentation', u'md2odp-TitleText',
                   [('graphic', {'draw:auto_grow_height': u'true'})],
@@ -722,6 +727,14 @@ def main():
                         help='Append markdown after given page. Negative '
                         'numbers count from the end of the slide stack. '
                         '[Defaults to -1]')
+    parser.add_argument('-n', '--no-autofit', default=True, action='store_false',
+                        help='Use to disable auto-shrinking '
+                        'font in text boxes, to fit available space.')
+    parser.add_argument('-s', '--highlight-style', default='colorful',
+                        help='Set pygments color style for syntax-highlighting '
+                        'of code snippets. Available styles in stock pygments '
+                        ' are: "default", "emacs", "friendly", and "colorful". '
+                        '[Defaults to colorful]')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
                         help='Use this master page for the 1st level'
                         ' headlines. List available ones if called with empty'
@@ -793,7 +806,9 @@ def main():
                                header_size=header_size,
                                header_position=header_position,
                                outline_size=outline_size,
-                               outline_position=outline_position)
+                               outline_position=outline_position,
+                               autofit_text=args.no_autofit,
+                               highlight_style=args.highlight_style)
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
     doc_elems = presentation.get_body()
