@@ -429,10 +429,7 @@ class ODFRenderer(mistune.Renderer):
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
         add_style(document, 'text', u'md2odp-TextCodeStyle',
-                  # TODO: font size increase does not work currently -
-                  # bug in xmloff?
-                  [('text', {'size': u'110%',
-                             'style:font_name': u'Nimbus Mono L'})])
+                  [('text', {'style:font_name': u'Nimbus Mono L'})])
 
         # paragraph styles
         add_style(document, 'paragraph', u'md2odp-ParagraphQuoteStyle',
@@ -443,10 +440,7 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_bottom': u'0.5cm',
                                   'text_indent': u'-0.6cm'})])
         add_style(document, 'paragraph', u'md2odp-ParagraphCodeStyle',
-                  # TODO: font size increase does not work currently -
-                  # bug in xmloff?
-                  [('text', {'size': u'110%',
-                             'style:font_name': u'Nimbus Mono L'}),
+                  [('text', {'style:font_name': u'Nimbus Mono L'}),
                    ('paragraph', {'margin_left': u'0.5cm',
                                   'margin_right': u'0.5cm',
                                   'margin_top': u'0.6cm',
@@ -483,7 +477,9 @@ class ODFRenderer(mistune.Renderer):
                 'style:graphic-properties/text:list-style[1]')[0].clone()
             list_style.set_attribute('style:name', u'OutlineListStyle')
             document.insert_style(list_style, automatic=True)
-        # TODO: log warning in verbose mode that no outline listlevel was found
+        else:
+            print 'WARNING: no outline list style found for ' \
+                  'master page "%s"!' % self.content_master
 
         # delegate to pygments formatter for their styles
         self.formatter.add_style_defs(document)
