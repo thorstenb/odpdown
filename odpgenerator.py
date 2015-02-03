@@ -117,6 +117,38 @@ def wrap_spans(odf_elements):
         res.append(para)
     return res
 
+# buffer regex for tab/space splitting for block code
+_whitespace_re = re.compile(u'( {2,}|\t)', re.UNICODE)
+
+
+def handle_whitespace(text):
+    """Add ODF whitespace processing and ODF linebreak elements into
+       multi-line text. Returns list with mixed unicode and odf
+       elements."""
+    result = []
+    lines = text.split('\n')
+    for index, line in enumerate(lines):
+        # for every line
+        for part in _whitespace_re.split(line):
+            # split off tabulators and whitespace
+            if part[:1] == ' ':
+                # multiple spaces in ODF need markup
+                result.append(
+                    odf_create_spaces(len(part)))
+            elif part[:1] == '\t':
+                # insert an actual tab
+                result.append(
+                    odf_create_tabulation())
+            else:
+                result.append(
+                    unicode(part))
+
+        # for all but the last line: add linebreak
+        if index < len(lines)-1:
+            result.append(odf_create_line_break())
+
+    return result
+
 
 # really quite an ugly hack. but unfortunately, mistune at a few
 # non-overridable places use '+' and '+=' to concatenate render method
@@ -323,30 +355,20 @@ class ODFFormatter(Formatter):
 
                     # white space and linefeeds: special handling
                     # needed in ODF
-                    lines = lastval.split('\n')
-                    for index, line in enumerate(lines):
-                        # for every line
-                        for part in self.whitespace_re.split(line):
-                            # split off tabulators and whitespace
-                            if ' ' in part:
-                                # multiple spaces in ODF need markup
-                                result.append(
-                                    odf_create_spaces(len(part)))
-                            elif '\t' in part:
-                                # insert an actual tab
-                                result.append(
-                                    odf_create_tabulation())
+                    for elem in handle_whitespace(lastval):
+                        if isinstance(elem, basestring):
+                            if root_span is None:
+                                span = odf_create_element('text:span')
+                                span.set_text(elem)
+                                result.append(span)
                             else:
-                                if root_span is None:
-                                    span = odf_create_element('text:span')
-                                    span.set_text(unicode(part))
-                                    result.append(span)
-                                else:
-                                    leaf_span.set_text(unicode(part))
-                                    result.append(root_span.clone())
-                        # for all but the last line: add linebreak
-                        if index < len(lines)-1:
-                            result.append(odf_create_line_break())
+                                # this is nasty - set text in
+                                # shared style instance, clone
+                                # afterwards
+                                leaf_span.set_text(elem)
+                                result.append(root_span.clone())
+                        else:
+                            result.append(elem)
 
                 # set lastval/lasttype to current values
                 lastval = value
@@ -360,12 +382,10 @@ class ODFFormatter(Formatter):
                 span.set_text(unicode(lastval))
                 result.append(span)
             else:
+                # this is nasty - set text in shared style instance,
+                # clone afterwards
                 leaf_span.set_text(unicode(lastval))
                 result.append(root_span.clone())
-        else:
-            # kill last (extraneous) linebreak
-            if len(result) and result[:-1] == 'text:span':
-                result = result[0:-2]
 
         return result
 
@@ -496,12 +516,21 @@ class ODFRenderer(mistune.Renderer):
         para = odf_create_paragraph(style=u'md2odp-ParagraphCodeStyle')
 
         if language is not None:
+            # explicit lang given, use syntax highlighting
             lexer = get_lexer_by_name(language)
-        else:
-            lexer = guess_lexer(code)
 
-        for span in self.formatter.format(lexer.get_tokens(code)):
-            para.append(span)
+            for span in self.formatter.format(lexer.get_tokens(code)):
+                para.append(span)
+        else:
+            # no lang given, use plain monospace formatting
+            for elem in handle_whitespace(code):
+                if isinstance(elem, basestring):
+                    span = odf_create_element('text:span')
+                    span.set_text(elem)
+                    para.append(span)
+                else:
+                    para.append(elem)
+
         return ODFPartialTree.from_metrics_provider([para], self)
 
     def header(self, text, level, raw=None):
