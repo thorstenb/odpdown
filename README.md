@@ -79,7 +79,7 @@ directory though.
   from the template's master pages for 1st level headings, and
   _content_slides_  as the master page for 2nd level headings and content:
 
-      ./odpdown \
+      odpdown \
          --break-master=break_slides --content-master=content_slides \
          slides.md corp_template.odp out_slides.odp
 
@@ -87,7 +87,7 @@ directory though.
   after slide 1:
 
       cat intro.md deploy.md tuning.md | \
-      ./odpdown -p 1 - corp_template.odp out_slides.odp
+      odpdown -p 1 - corp_template.odp out_slides.odp
 
 * Stick a bunch of of markdown chapters into existing preso, e.g. to
   keep a few hand-crafted slides inbetween:
@@ -97,7 +97,7 @@ directory though.
 
       # deploy comes after architecture slide, which is slide 2 in
       # hand_crafted.md and 2+10 after intro got added
-      ./odpdown -p 12 deploy.md out_slides.odp out_slides.odp
+      odpdown -p 12 deploy.md out_slides.odp out_slides.odp
 
 Have a lot of fun,
 
