@@ -8,7 +8,7 @@ Example setup per host:
        Hostname funny-3.example.com
        User test
 
-Note: this is **important** as "blafasl" uses <short> hostnames.
+Note: this is ***important*** *as* "blafasl" uses <short> hostnames.
 
 ## Some outline text
 
@@ -19,6 +19,18 @@ Note: this is **important** as "blafasl" uses <short> hostnames.
 ~~~ bash
       # rm -rf /
 ~~~
+
+## Slide as before in markdown
+
+    ## Some outline text
+
+    * Install this and that, and add the wombat ISO on top
+    * Add test user to each item - `$ blafasl` for example
+      * sub item - this is ™ me
+
+    ~~~ bash
+          # rm -rf /
+    ~~~
 
 ## Some actual code
 
