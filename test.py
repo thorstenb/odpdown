@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import odpgenerator
+import odpdown
 import mistune
 import codecs
 from lpod.document import odf_new_document
@@ -48,7 +48,7 @@ mkdown = None
 def setup():
     global testdoc, odf_renderer, mkdown
     testdoc = odf_new_document('presentation')
-    odf_renderer = odpgenerator.ODFRenderer(testdoc)
+    odf_renderer = odpdown.ODFRenderer(testdoc)
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
 

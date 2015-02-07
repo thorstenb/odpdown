@@ -30,7 +30,7 @@ On Windows, run it via the command prompt (Start ‣ Accessories):
 
     setup.py install
 
-Alternatively, running `odpgenerator.py` directly from the git
+Alternatively, running `odpdown` directly from the git
 checkout is also possible, provided you've installed the prerequisites
 (most significantly lpod, pygments and pillow) manually. Make sure to
 run `git submodule update --init` once in the toplevel checkout
@@ -38,10 +38,10 @@ directory though.
 
 ## Usage
 
-	usage: odpgenerator.py [-h] [-p PAGE] [-a AUTOFIT] [-s HIGHLIGHT_STYLE]
-	                       [--break-master [BREAK_MASTER]]
-	                       [--content-master [CONTENT_MASTER]]
-	                       input_md template_odp output_odp
+	usage: odpdown [-h] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
+	               [--break-master [BREAK_MASTER]]
+	               [--content-master [CONTENT_MASTER]]
+	               input_md template_odp output_odp
 
 	Convert markdown text into OpenDocument presentations
 
@@ -79,7 +79,7 @@ directory though.
   from the template's master pages for 1st level headings, and
   _content_slides_  as the master page for 2nd level headings and content:
 
-      ./odpgenerator.py \
+      ./odpdown \
          --break-master=break_slides --content-master=content_slides \
          slides.md corp_template.odp out_slides.odp
 
@@ -87,17 +87,17 @@ directory though.
   after slide 1:
 
       cat intro.md deploy.md tuning.md | \
-      ./odpgenerator.py -p 1 - corp_template.odp out_slides.odp
+      ./odpdown -p 1 - corp_template.odp out_slides.odp
 
 * Stick a bunch of of markdown chapters into existing preso, e.g. to
   keep a few hand-crafted slides inbetween:
 
       # intro comes after slide one
-      odpgenerator.py -p 1 into.md hand_crafted.odp out_slides.odp
+      odpdown -p 1 into.md hand_crafted.odp out_slides.odp
 
       # deploy comes after architecture slide, which is slide 2 in
       # hand_crafted.md and 2+10 after intro got added
-      ./odpgenerator.py -p 12 deploy.md out_slides.odp out_slides.odp
+      ./odpdown -p 12 deploy.md out_slides.odp out_slides.odp
 
 Have a lot of fun,
 

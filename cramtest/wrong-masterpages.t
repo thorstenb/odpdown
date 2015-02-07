@@ -1,4 +1,4 @@
-  $ $TESTDIR/../odpgenerator.py --break-master=bla --content-master=fasl $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
+  $ $TESTDIR/../odpdown --break-master=bla --content-master=fasl $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
   Available master page names in template:
   ----------------------------------------
   
@@ -11,7 +11,7 @@
    - Standard
    - Default
    - libreoffice_5f_en
-  $ $TESTDIR/../odpgenerator.py --break-master=Default --content-master=fasl $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
+  $ $TESTDIR/../odpdown --break-master=Default --content-master=fasl $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
   Available master page names in template:
   ----------------------------------------
   
@@ -24,7 +24,7 @@
    - Standard
    - Default
    - libreoffice_5f_en
-  $ $TESTDIR/../odpgenerator.py --break-master=bla --content-master=Default $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
+  $ $TESTDIR/../odpdown --break-master=bla --content-master=Default $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
   Available master page names in template:
   ----------------------------------------
   
@@ -37,7 +37,7 @@
    - Standard
    - Default
    - libreoffice_5f_en
-  $ $TESTDIR/../odpgenerator.py --break-master=bla $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
+  $ $TESTDIR/../odpdown --break-master=bla $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
   Available master page names in template:
   ----------------------------------------
   
@@ -50,7 +50,7 @@
    - Standard
    - Default
    - libreoffice_5f_en
-  $ $TESTDIR/../odpgenerator.py --content-master=bla $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
+  $ $TESTDIR/../odpdown --content-master=bla $TESTDIR/test.md $TESTDIR/test.odp $CRAMTMP/out_slides.odp
   Available master page names in template:
   ----------------------------------------
   

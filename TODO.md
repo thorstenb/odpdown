@@ -14,7 +14,7 @@
       % date
   also interesting for inspiration:
   http://kramdown.gettalong.org/syntax.html#non-content-elements
-* fix open issues: https://github.com/thorstenb/odpgen/issues
+* fix open issues: https://github.com/thorstenb/odpdown/issues
 * implement proper block quotes. see e.g.
   https://bitbucket.org/tutorials/markdowndemo/overview#markdown-header-paragraphs-and-blockquotes
   - our current implementation does not even handle nested quotes

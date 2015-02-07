@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 def main():
-    import odpgenerator
-    odpgenerator.main()
+    import odpdown
+    odpdown.main()
 
 if __name__ == "__main__":
-    main() 
+    main()

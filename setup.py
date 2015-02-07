@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from odpgenerator import __version__
+from odpdown import __version__
 
-setup(name='odpgenerator',
+setup(name='odpdown',
       description='Generate OpenDocument Presentation (odp) files'
       ' from markdown',
       version=__version__,
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
-      url='https://github.com/thorstenb/odpgen.git',
+      url='https://github.com/thorstenb/odpdown.git',
       long_description=open('README.md').read(),
-      py_modules=['odpgenerator'],
-      scripts=['odpgenerator'],
+      py_modules=['odpdown'],
+      scripts=['odpdown'],
       license='BSD License',
       install_requires=[
           'mistune>=0.5',
