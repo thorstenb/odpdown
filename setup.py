@@ -17,7 +17,7 @@ setup(name='odpdown',
       install_requires=[
           'mistune>=0.5',
           'lpod-python>=1.1.6',
-          'pygments>=2.0',
+          'pygments>=1.6',
           'pillow>=2.0',
       ],
       classifiers=[
