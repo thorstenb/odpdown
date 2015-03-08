@@ -33,17 +33,13 @@ On Windows, run it via the command prompt (Start ‣ Accessories):
 
     setup.py install
 
-Alternatively, running `odpdown` directly from the git
-checkout is also possible, provided you've installed the prerequisites
-(most significantly lpod, pygments and pillow) manually. Make sure to
-run `git submodule update --init` once in the toplevel checkout
-directory though.
+Alternatively, running `odpdown` directly from the git checkout is
+also possible, provided you've installed the prerequisites (most
+significantly mistune, lpod, pygments and pillow) manually.
 
 ## Tests
 
-Run `tox` to run test suite. Sadly lpod has a bug, so a part of the
-tests currently fail if you run against stock PyPI lpod. The pull
-request is outstanding: https://github.com/lpod/lpod-python/pull/16
+Run `tox` to run the test suite.
 
 ## Usage
 
@@ -66,9 +62,6 @@ request is outstanding: https://github.com/lpod/lpod-python/pull/16
 	                        -1]
 	  -n, --no-autofit      Use to disable auto-shrinking font in text boxes, to
 	                        fit available space.
-	  -a AUTOFIT, --autofit AUTOFIT
-	                        Set to "False" to disable auto-shrinking font in text
-	                        boxes, to fit available space. [Defaults to True]
 	  -s HIGHLIGHT_STYLE, --highlight-style HIGHLIGHT_STYLE
 	                        Set pygments color style for syntax-highlighting of
 	                        code snippets. Available styles in stock pygments are:
@@ -106,7 +99,7 @@ request is outstanding: https://github.com/lpod/lpod-python/pull/16
 
       # deploy comes after architecture slide, which is slide 2 in
       # hand_crafted.md and 2+10 after intro got added
-      odpdown -p 12 deploy.md out_slides.odp out_slides.odp
+      odpdown -p 12 deploy.md out_slides.odp out_slides2.odp
 
 Have a lot of fun,
 
