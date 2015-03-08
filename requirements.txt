@@ -1,0 +1,5 @@
+-e git+https://github.com/lepture/mistune.git@v0.5#egg=mistune
+-e git+https://github.com/thorstenb/lpod-python.git#egg=lpod-python
+pygments>=1.6
+pillow>=2.0
+BeautifulSoup
