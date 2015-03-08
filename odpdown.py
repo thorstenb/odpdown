@@ -172,10 +172,10 @@ class ODFPartialTree:
     def add_child_elems(self, elems):
         """Helper to add elems to self as children"""
         # TODO: kill this ugly typeswitching
-        if (len(self._elements)
-            and isinstance(
-                self._elements[-1], odf_draw_page)
-            and not isinstance(
+        if (len(self._elements) and
+            isinstance(
+                self._elements[-1], odf_draw_page) and not
+            isinstance(
                 elems[0], odf_draw_page)):
 
             # stick additional frame content into last existing one
@@ -785,10 +785,10 @@ def main():
     master_pages = presentation.get_part(ODF_STYLES).get_elements(
         'descendant::style:master-page')
     master_names = [i.get_attribute('style:name') for i in master_pages]
-    if ((args.break_master is not None
-         and args.break_master not in master_names)
-        or (args.content_master is not None
-            and args.content_master not in master_names)):
+    if ((args.break_master is not None and
+         args.break_master not in master_names) or
+        (args.content_master is not None and
+         args.content_master not in master_names)):
 
         print _master_page_spew + '\n'
         for i in master_names:
