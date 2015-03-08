@@ -1,5 +1,8 @@
 # Generate ODP files from markdown
 
+[![PyPI version](https://badge.fury.io/py/odpdown.svg)](http://badge.fury.io/py/odpdown)
+[![Build Status](https://travis-ci.org/thorstenb/odpdown.svg?branch=master)](https://travis-ci.org/thorstenb/odpdown)
+
 ## Attributions
 
 Original Markdown Copyright (c) 2004-2005 John Gruber
