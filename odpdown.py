@@ -61,7 +61,7 @@ from lpod.paragraph import odf_create_tabulation
 from lpod.element import odf_create_element
 from lpod.link import odf_create_link, odf_link
 
-from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
 
 __version__ = '0.3.0'
@@ -410,8 +410,9 @@ class ODFRenderer(mistune.Renderer):
         self.break_master = 'Default' if break_master is None else break_master
         self.breakheader_size = ((u'20cm', u'3cm') if breakheader_size is None
                                  else breakheader_size)
-        self.breakheader_position = ((u'2cm', u'8cm') if breakheader_position is None
-                                     else breakheader_position)
+        self.breakheader_position = (
+            (u'2cm', u'8cm') if breakheader_position is None
+            else breakheader_position)
         self.content_master = ('Default' if content_master is None
                                else content_master)
         self.header_size = ((u'20cm', u'3cm') if header_size is None
@@ -563,7 +564,7 @@ class ODFRenderer(mistune.Renderer):
                           u'%s' % self.header_size[1]),
                     position=(u'%s' % self.header_position[0],
                               u'%s' % self.header_position[1]),
-                    presentation_class = u'title'))
+                    presentation_class=u'title'))
         else:
             raise RuntimeError('Unsupported heading level: %d' % level)
 
@@ -755,14 +756,16 @@ def main():
                         help='Append markdown after given page. Negative '
                         'numbers count from the end of the slide stack. '
                         '[Defaults to -1]')
-    parser.add_argument('-n', '--no-autofit', default=True, action='store_false',
+    parser.add_argument('-n', '--no-autofit',
+                        default=True,
+                        action='store_false',
                         help='Use to disable auto-shrinking '
                         'font in text boxes, to fit available space.')
     parser.add_argument('-s', '--highlight-style', default='colorful',
-                        help='Set pygments color style for syntax-highlighting '
-                        'of code snippets. Available styles in stock pygments '
-                        ' are: "default", "emacs", "friendly", and "colorful". '
-                        '[Defaults to colorful]')
+                        help='Set pygments color style for syntax-'
+                        'highlighting of code snippets. Available styles in '
+                        'stock pygments are: "default", "emacs", "friendly",'
+                        ' and "colorful". [Defaults to colorful]')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
                         help='Use this master page for the 1st level'
                         ' headlines. List available ones if called with empty'
