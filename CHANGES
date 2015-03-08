@@ -1,3 +1,13 @@
+v0.4.0
+ -  Rename program/package to odpdown.
+ -  Use plain monospaced for unknown-lang code blocks.
+ -  Relax pygments minimal version requirements.
+ -  Add downstream spec file.
+ -  Use requirements.txt instead of git submodule.
+ -  Move to tox for testsuite
+ -  Add travis CI config.
+ -  Fixes #9 - use internal names for ODF images in container.
+
 v0.3.0
  - Fixes #8 - don't trip over empty list item case.
  - Fixes #10 - don't use default mistune escaping-text-output.
