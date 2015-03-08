@@ -36,6 +36,7 @@
 import odpdown
 import mistune
 import codecs
+from lpod import ODF_MANIFEST
 from lpod.document import odf_new_document
 from lpod.draw_page import odf_draw_page
 from nose.tools import with_setup, raises
@@ -227,3 +228,16 @@ def test_svg1():
     assert odf.get()[0].get_elements('descendant::draw:frame')[1].get_attribute(
         'svg:height') == '9cm'
     assert len(odf.get()[0].get_elements('descendant::draw:image')) == 1
+
+
+@with_setup(setup)
+def test_weird_uris():
+    markdown = '''
+## Heading
+
+![This is alt text](cramtest/test.svg?_-\;^?!"$:%&=*+#test)
+
+'''.strip()
+    mkdown.render(markdown)
+    assert u'Pictures/odpdown_image_0.svg' in testdoc.get_part(
+        ODF_MANIFEST).get_paths()

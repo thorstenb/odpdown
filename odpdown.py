@@ -391,6 +391,8 @@ class ODFFormatter(Formatter):
 
 class ODFRenderer(mistune.Renderer):
     """Render mistune event stream as ODF"""
+    image_prefix = 'odpdown_image_'
+
     def __init__(self,
                  document,
                  break_master=None,
@@ -407,6 +409,12 @@ class ODFRenderer(mistune.Renderer):
         self.formatter = ODFFormatter(style=highlight_style)
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
+        # make sure nested odpdown calls don't end up writing
+        # similarly-named images
+        self.image_entry_id = len([path for path in
+                                   self.doc_manifest.get_paths()
+                                   if path.startswith(
+                                           ODFRenderer.image_prefix)])
         self.break_master = 'Default' if break_master is None else break_master
         self.breakheader_size = ((u'20cm', u'3cm') if breakheader_size is None
                                  else breakheader_size)
@@ -669,11 +677,13 @@ class ODFRenderer(mistune.Renderer):
     def image(self, src, title, alt_text):
         # embed picture - TODO: optionally just link it
         media_type = guess_type(src)
-        fragment_name = 'Pictures/' + urlparse.urlparse(src)[2].split('/')[-1]
-
+        fragment_ext = urlparse.urlparse(src)[2].split('.')[-1]
+        fragment_name = 'Pictures/%s%d.%s' % (ODFRenderer.image_prefix,
+                                              self.image_entry_id,
+                                              fragment_ext)
         imagedata = urlopen(src).read()
         try:
-            if not fragment_name.endswith('.svg'):
+            if not fragment_ext.endswith('svg'):
                 # delay our PIL dependency until really needed
                 from PIL import Image
                 import cStringIO
@@ -724,6 +734,7 @@ class ODFRenderer(mistune.Renderer):
                                         media_type[0])
         self.document.set_part(fragment_name,
                                imagedata)
+        self.image_entry_id += 1
         return ODFPartialTree.from_metrics_provider([frame], self)
 
     def linebreak(self):
