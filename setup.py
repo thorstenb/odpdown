@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from odpdown import __version__
 
 setup(name='odpdown',
       description='Generate OpenDocument Presentation (odp) files'
       ' from markdown',
-      version=__version__,
+      version='0.3.0',
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
       url='https://github.com/thorstenb/odpdown.git',

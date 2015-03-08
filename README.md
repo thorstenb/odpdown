@@ -36,6 +36,12 @@ checkout is also possible, provided you've installed the prerequisites
 run `git submodule update --init` once in the toplevel checkout
 directory though.
 
+## Tests
+
+Run `tox` to run test suite. Sadly lpod has a bug, so a part of the
+tests currently fail if you run against stock PyPI lpod. The pull
+request is outstanding: https://github.com/lpod/lpod-python/pull/16
+
 ## Usage
 
 	usage: odpdown [-h] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]

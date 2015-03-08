@@ -1,6 +1,7 @@
 *~
 *t.err
 *.pyc
+.tox/
 dist/
 build/
 MANIFEST
