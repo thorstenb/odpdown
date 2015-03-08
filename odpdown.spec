@@ -1,7 +1,7 @@
 #
 # spec file for package python-odpdown
 #
-# Copyright (c) 2015 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -13,22 +13,25 @@
 # published by the Open Source Initiative.
 
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
 
 
 Name:           python-odpdown
 Version:        0
 Release:        0
-License:        BSD-3-Clause
 Summary:        Generate OpenDocument Presentation (odp) files from markdown
-Url:            https://github.com/thorstenb/odpdown.git
+License:        BSD-3-Clause
 Group:          Development/Languages/Python
+Url:            https://github.com/thorstenb/odpdown.git
 Source:         https://pypi.python.org/packages/source/o/odpdown/odpdown-%{version}.tar.gz
-BuildRequires:  python-setuptools
 BuildRequires:  python-devel
-BuildRequires:  python-mistune >= 0.5
-Requires:       python-mistune >= 0.5
 BuildRequires:  python-lpod >= 1.1.6
+BuildRequires:  python-mistune >= 0.5
+BuildRequires:  python-setuptools
 Requires:       python-lpod >= 1.1.6
+Requires:       python-mistune >= 0.5
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildArch:      noarch
 %if 0%{?fedora} || 0%{?centos} || 0%{?rhel}
 BuildRequires:  python-pygments >= 1.6
 Requires:       python-pygments >= 1.6
@@ -37,13 +40,13 @@ BuildRequires:  python-Pygments >= 1.6
 Requires:       python-Pygments >= 1.6
 %endif
 %if 0%{?suse_version}
-# an optional runtime dependency
+# optional runtime dependencies
 Recommends:     python-Pillow >= 2.0
+Recommends:     python-beautifulsoup
 %else
 Requires:       python-Pillow >= 2.0
+Requires:       python-BeautifulSoup
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildArch:      noarch
 
 %description
 Generate ODP files from markdown.
@@ -68,7 +71,7 @@ python setup.py install --prefix=%{_prefix} --root=%{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc README.md
+%doc LICENSE CHANGES README.md TODO.md
 %{_bindir}/odpdown
 %{python_sitelib}/*
 
