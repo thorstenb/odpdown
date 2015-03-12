@@ -5,7 +5,7 @@ from setuptools import setup
 setup(name='odpdown',
       description='Generate OpenDocument Presentation (odp) files'
       ' from markdown',
-      version='0.4.0',
+      version='0.4.1',
       author='Thorsten Behrens',
       author_email='tbehrens@acm.org',
       url='https://github.com/thorstenb/odpdown.git',

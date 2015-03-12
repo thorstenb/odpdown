@@ -1,3 +1,8 @@
+v0.4.1
+ - Update specfile from downstream project.
+ - Fix code-block ODF space misparsing bug.
+ - Add demo files and template
+
 v0.4.0
  -  Rename program/package to odpdown.
  -  Use plain monospaced for unknown-lang code blocks.

@@ -64,7 +64,7 @@ from lpod.link import odf_create_link, odf_link
 from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
 __all__ = [
     'ODFRenderer', 'ODFRenderer',
