@@ -6,3 +6,4 @@ dist/
 build/
 MANIFEST
 odpdown.egg-info
+demo/*.pdf

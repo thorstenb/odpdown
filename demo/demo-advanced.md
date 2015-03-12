@@ -33,12 +33,16 @@
 ~~~
 ## Inline Code
 
-You can do html-alike <code> markup like so: `$ tail -f /var/log/messages`.
+You can do html-alike inline <code>
+display with the following markup:
+`$ tail -f /var/log/messages`
 ~~~
 
 ## Inline Code
 
-You can achieve html-alike <code> markup like so: `$ tail -f /var/log/messages`.
+You can do html-alike inline <code>
+display with the following markup:
+`$ tail -f /var/log/messages`
 
 ## Preformatted Content Markup
 
