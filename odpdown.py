@@ -130,7 +130,7 @@ def handle_whitespace(text):
         # for every line
         for part in _whitespace_re.split(line):
             # split off tabulators and whitespace
-            if part[:1] == ' ':
+            if part[:2] == '  ':
                 # multiple spaces in ODF need markup
                 result.append(
                     odf_create_spaces(len(part)))
@@ -414,7 +414,7 @@ class ODFRenderer(mistune.Renderer):
         self.image_entry_id = len([path for path in
                                    self.doc_manifest.get_paths()
                                    if path.startswith(
-                                           ODFRenderer.image_prefix)])
+                                       ODFRenderer.image_prefix)])
         self.break_master = 'Default' if break_master is None else break_master
         self.breakheader_size = ((u'20cm', u'3cm') if breakheader_size is None
                                  else breakheader_size)

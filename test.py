@@ -200,8 +200,8 @@ void main()
     assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
             'Heading')
     spaces = odf.get()[0].get_elements('descendant::text:s')
-    assert len(spaces) == 3
-    assert spaces[1].get_attribute('text:c') == '4'
+    assert len(spaces) == 1
+    assert spaces[0].get_attribute('text:c') == '4'
 
 
 @with_setup(setup)
@@ -241,3 +241,17 @@ def test_weird_uris():
     mkdown.render(markdown)
     assert u'Pictures/odpdown_image_0.svg' in testdoc.get_part(
         ODF_MANIFEST).get_paths()
+
+
+@with_setup(setup)
+def test_single_space_bug():
+    markdown = '''
+## Heading
+
+~~~ bash
+if [ $? -eq 0 ]; then
+fi
+~~~
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert odf.get()[0].get_elements('descendant::text:span')[7].get_text() == ' -eq '
