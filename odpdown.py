@@ -755,6 +755,8 @@ def main():
     """Command-line conversion tool"""
     parser = argparse.ArgumentParser(
         description='Convert markdown text into OpenDocument presentations')
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s ' + __version__)
     parser.add_argument('input_md',
                         help='Input markdown file')
     parser.add_argument('template_odp',

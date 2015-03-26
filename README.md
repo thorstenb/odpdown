@@ -43,7 +43,7 @@ Run `tox` to run the test suite.
 
 ## Usage
 
-	usage: odpdown [-h] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
+	usage: odpdown [-h] [--version] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
 	               [--break-master [BREAK_MASTER]]
 	               [--content-master [CONTENT_MASTER]]
 	               input_md template_odp output_odp
@@ -57,6 +57,7 @@ Run `tox` to run the test suite.
 
 	optional arguments:
 	  -h, --help            show this help message and exit
+	  --version             show program's version number and exit
 	  -p PAGE, --page PAGE  Append markdown after given page. Negative numbers
 	                        count from the end of the slide stack. [Defaults to
 	                        -1]
