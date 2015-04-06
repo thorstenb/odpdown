@@ -1,6 +1,34 @@
 #!/usr/bin/env python
 
+import os.path
 from setuptools import setup
+import setuptools.command.install
+import subprocess
+
+def install_vim_plugin(install_scripts):
+    print('installing vim plugin')
+    subprocess.call(['python3', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins', 'vim', 'setup.py'), install_scripts])
+
+def handle_plugins(command):
+    command.user_options.append( ('install-vim', None, 'install vim plugin too') )
+    wrapped_run = command.run
+    wrapped_initopts = command.initialize_options
+    def initialize_options_with_plugins(self):
+        self.install_vim = None
+        wrapped_initopts(self)
+    def run_with_plugins(self):
+        if(self.install_vim and not self.user):
+            raise Exception("Sorry, the vim plugin is currently only support for --user installs. Patches welcome.")
+        wrapped_run(self)
+        if(self.install_vim):
+            install_vim_plugin(self.install_scripts)
+    command.run = run_with_plugins
+    command.initialize_options = initialize_options_with_plugins
+    return command
+
+@handle_plugins
+class install(setuptools.command.install.install):
+    pass
 
 setup(name='odpdown',
       description='Generate OpenDocument Presentation (odp) files'
@@ -29,4 +57,8 @@ setup(name='odpdown',
           'Topic :: Multimedia :: Graphics :: Presentation',
           'Topic :: Software Development :: Documentation',
           'Topic :: Office/Business'
-      ])
+      ],
+      cmdclass={
+          'install' : install,
+      }
+    )

@@ -1,0 +1,31 @@
+*odpdown.txt* *ShowSlides* Plugin to write presentations as markdown
+
+The following commands are available from the odpdown plugin:
+
+:ShowSlides show                generates a presentation from the markdown in
+                                the current buffer and opens the result with
+                                LibreOffice. If run repeatedly, the previous
+                                result is replaced in LibreOffice (so the
+                                previous result is closed), unless it was
+                                modified.
+
+:ShowSlides                     short for :ShowSlides show
+
+:ShowSlides                     as :ShowSlides show, but start in fullscreen
+                                presentation mode
+
+:ShowSlides example             fills a buffer with example markdown
+
+:ShowSlides settings            shows the current setting for the odp generator
+
+:ShowSlides autofit [on|off]    toggles odpdowns autofit setting
+:ShowSlides breakmaster NAME    sets the breakmaster to use
+:ShowSlides contentmaster NAME  sets the contentmaster to use
+:ShowSlides highlight STYLE     sets the code highlight style to use
+
+All of the above commands are also available as :Odpdown, which is an alias for
+:ShowSlides.
+
+More details on odpdown setting can be found at:
+
+ https://github.com/thorstenb/odpdown
