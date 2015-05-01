@@ -35,7 +35,7 @@ On Windows, run it via the command prompt (Start ‣ Accessories):
 
 Alternatively, running `odpdown` directly from the git checkout is
 also possible, provided you've installed the prerequisites (most
-significantly mistune, lpod, pygments and pillow) manually.
+significantly mistune, lpod, pygments, lxml and pillow) manually.
 
 ## Tests
 

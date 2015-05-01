@@ -46,6 +46,7 @@ setup(name='odpdown',
           'lpod-python>=1.1.6',
           'pygments>=1.6',
           'pillow>=2.0',
+          'lxml>=3.4.4',
       ],
       classifiers=[
           'Development Status :: 4 - Beta',
