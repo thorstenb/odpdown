@@ -41,6 +41,10 @@ significantly mistune, lpod, pygments, lxml and pillow) manually.
 
 Run `tox` to run the test suite.
 
+    pip install tox
+    tox -v
+
+
 ## Usage
 
 	usage: odpdown [-h] [--version] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
