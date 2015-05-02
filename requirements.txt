@@ -4,3 +4,4 @@ cram>=0.6
 pygments>=1.6
 pillow>=2.0
 BeautifulSoup
+lxml>=3.4.4
