@@ -235,7 +235,7 @@ def test_weird_uris():
     markdown = '''
 ## Heading
 
-![This is alt text](cramtest/test.svg_-;^!$%&=+#test)
+![This is alt text](cramtest/test.svg;_-^!$%&=+#test)
 
 '''.strip()
     mkdown.render(markdown)
