@@ -161,7 +161,9 @@ There "is" <some> & 'the' other to escape
     assert (odf.get()[0].get_elements('descendant::text:span')[2].get_text() ==
             'There "is" ')
     assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
-            '<some> & \'the\' other to escape')
+            '<some>')
+    assert (odf.get()[0].get_elements('descendant::text:span')[4].get_text() ==
+            ' & \'the\' other to escape')
 
 
 @with_setup(setup)
@@ -255,3 +257,20 @@ fi
 '''.strip()
     odf = mkdown.render(markdown)
     assert odf.get()[0].get_elements('descendant::text:span')[7].get_text() == ' -eq '
+
+
+@with_setup(setup)
+def test_multiline_bold():
+    markdown = '''
+## Heading
+
+**bold text
+next line bold**
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert (odf.get()[0].get_elements('descendant::text:span')[2].get_attribute(
+        'text:style-name') == 'md2odp-TextDoubleEmphasisStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
+            'bold text\nnext line bold')

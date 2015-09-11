@@ -1,4 +1,4 @@
--e git+https://github.com/lepture/mistune.git@fd8c175668047c82d65f4da7e4ee8ff7900c17d3#egg=mistune
+-e git+https://github.com/lepture/mistune.git@v0.7.1#egg=mistune
 -e git+https://github.com/thorstenb/lpod-python.git#egg=lpod-python
 cram>=0.6
 pygments>=1.6

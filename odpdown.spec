@@ -26,10 +26,10 @@ Url:            https://github.com/thorstenb/odpdown.git
 Source:         https://pypi.python.org/packages/source/o/odpdown/odpdown-%{version}.tar.gz
 BuildRequires:  python-devel
 BuildRequires:  python-lpod >= 1.1.6
-BuildRequires:  python-mistune >= 0.5
+BuildRequires:  python-mistune >= 0.7.1
 BuildRequires:  python-setuptools
 Requires:       python-lpod >= 1.1.6
-Requires:       python-mistune >= 0.5
+Requires:       python-mistune >= 0.7.1
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildArch:      noarch
 %if 0%{?fedora} || 0%{?centos} || 0%{?rhel}
