@@ -47,38 +47,41 @@ Run `tox` to run the test suite.
 
 ## Usage
 
-	usage: odpdown [-h] [--version] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
-	               [--break-master [BREAK_MASTER]]
-	               [--content-master [CONTENT_MASTER]]
-	               input_md template_odp output_odp
+       usage: odpdown [-h] [--version] [-p PAGE] [-n] [-s HIGHLIGHT_STYLE]
+                      [-c CODE_FONT_NAME] [--break-master [BREAK_MASTER]]
+                      [--content-master [CONTENT_MASTER]]
+                      input_md template_odp output_odp
 
-	Convert markdown text into OpenDocument presentations
+       Convert markdown text into OpenDocument presentations
 
-	positional arguments:
-	  input_md              Input markdown file
-	  template_odp          Input ODP template file
-	  output_odp            Output ODP file
+       positional arguments:
+         input_md              Input markdown file
+         template_odp          Input ODP template file
+         output_odp            Output ODP file
 
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  --version             show program's version number and exit
-	  -p PAGE, --page PAGE  Append markdown after given page. Negative numbers
-	                        count from the end of the slide stack. [Defaults to
-	                        -1]
-	  -n, --no-autofit      Use to disable auto-shrinking font in text boxes, to
-	                        fit available space.
-	  -s HIGHLIGHT_STYLE, --highlight-style HIGHLIGHT_STYLE
-	                        Set pygments color style for syntax-highlighting of
-	                        code snippets. Available styles in stock pygments are:
-	                        "default", "emacs", "friendly", and "colorful".
-	                        [Defaults to colorful]
-	  --break-master [BREAK_MASTER]
-	                        Use this master page for the 1st level headlines. List
-	                        available ones if called with empty or unknown name
-	  --content-master [CONTENT_MASTER]
-	                        Use this master page for the 2nd level headlines and
-	                        content. List available ones if called with empty or
-	                        unknown name
+       optional arguments:
+         -h, --help            show this help message and exit
+         --version             show program's version number and exit
+         -p PAGE, --page PAGE  Append markdown after given page. Negative numbers
+                               count from the end of the slide stack. [Defaults to
+                               -1]
+         -n, --no-autofit      Use to disable auto-shrinking font in text boxes, to
+                               fit available space.
+         -s HIGHLIGHT_STYLE, --highlight-style HIGHLIGHT_STYLE
+                               Set pygments color style for syntax-highlighting of
+                               code snippets. Available styles in stock pygments are:
+                               "default", "emacs", "friendly", and "colorful".
+                               [Defaults to colorful]
+         -c CODE_FONT_NAME, --code-font-name CODE_FONT_NAME
+                               Set font name used for code fragments. [Defaults to
+                               "Nimbus Mono L"]
+         --break-master [BREAK_MASTER]
+                               Use this master page for the 1st level headlines. List
+                               available ones if called with empty or unknown name
+         --content-master [CONTENT_MASTER]
+                               Use this master page for the 2nd level headlines and
+                               content. List available ones if called with empty or
+                               unknown name
 
 ## Example
 

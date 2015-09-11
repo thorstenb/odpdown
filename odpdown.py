@@ -395,6 +395,7 @@ class ODFRenderer(mistune.Renderer):
 
     def __init__(self,
                  document,
+                 code_font_name,
                  break_master=None,
                  breakheader_size=None,
                  breakheader_position=None,
@@ -436,9 +437,9 @@ class ODFRenderer(mistune.Renderer):
         self.document.insert_style(
             odf_create_style(
                 'font-face',
-                name=u'Nimbus Mono L',
-                font_name=u'Nimbus Mono L',
-                font_family=u'Nimbus Mono L',
+                name=code_font_name,
+                font_name=code_font_name,
+                font_family=code_font_name,
                 font_family_generic=u'modern',
                 font_pitch=u'fixed'),
             automatic=True)
@@ -459,7 +460,7 @@ class ODFRenderer(mistune.Renderer):
                   [('text', {'size': u'200%',
                              'color': u'#ccf4c6'})])
         add_style(document, 'text', u'md2odp-TextCodeStyle',
-                  [('text', {'style:font_name': u'Nimbus Mono L'})])
+                  [('text', {'style:font_name': code_font_name})])
 
         # paragraph styles
         add_style(document, 'paragraph', u'md2odp-ParagraphQuoteStyle',
@@ -470,7 +471,7 @@ class ODFRenderer(mistune.Renderer):
                                   'margin_bottom': u'0.5cm',
                                   'text_indent': u'-0.6cm'})])
         add_style(document, 'paragraph', u'md2odp-ParagraphCodeStyle',
-                  [('text', {'style:font_name': u'Nimbus Mono L'}),
+                  [('text', {'style:font_name': code_font_name}),
                    ('paragraph', {'margin_left': u'0.5cm',
                                   'margin_right': u'0.5cm',
                                   'margin_top': u'0.6cm',
@@ -779,6 +780,9 @@ def main():
                         'highlighting of code snippets. Available styles in '
                         'stock pygments are: "default", "emacs", "friendly",'
                         ' and "colorful". [Defaults to colorful]')
+    parser.add_argument('-c', '--code-font-name', default='Nimbus Mono L',
+                        help='Set font name used for code fragments. [Defaults'
+                        ' to "Nimbus Mono L"]')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
                         help='Use this master page for the 1st level'
                         ' headlines. List available ones if called with empty'
@@ -843,6 +847,7 @@ def main():
                                         frame.get_attribute('svg:y'))
 
     odf_renderer = ODFRenderer(presentation,
+                               code_font_name=unicode(args.code_font_name),
                                break_master=args.break_master,
                                breakheader_size=breakheader_size,
                                breakheader_position=breakheader_position,

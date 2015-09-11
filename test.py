@@ -49,7 +49,7 @@ mkdown = None
 def setup():
     global testdoc, odf_renderer, mkdown
     testdoc = odf_new_document('presentation')
-    odf_renderer = odpdown.ODFRenderer(testdoc)
+    odf_renderer = odpdown.ODFRenderer(testdoc,u'Nimbus Mono L')
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
 
