@@ -376,15 +376,23 @@ class ODFFormatter(Formatter):
         # something left in lastval? flush it now
         if lastval:
             root_span, leaf_span = self.styles[lasttype]
-            if root_span is None:
-                span = odf_create_element('text:span')
-                span.set_text(unicode(lastval))
-                result.append(span)
-            else:
-                # this is nasty - set text in shared style instance,
-                # clone afterwards
-                leaf_span.set_text(unicode(lastval))
-                result.append(root_span.clone())
+
+            # white space and linefeeds: special handling
+            # needed in ODF
+            for elem in handle_whitespace(lastval):
+                if isinstance(elem, basestring):
+                    if root_span is None:
+                        span = odf_create_element('text:span')
+                        span.set_text(elem)
+                        result.append(span)
+                    else:
+                        # this is nasty - set text in
+                        # shared style instance, clone
+                        # afterwards
+                        leaf_span.set_text(elem)
+                        result.append(root_span.clone())
+                else:
+                    result.append(elem)
 
         return result
 
