@@ -1,3 +1,6 @@
+v0.4.2
+ - basic support for markdown tables
+
 v0.4.1
  - Update specfile from downstream project.
  - Fix code-block ODF space misparsing bug.
