@@ -51,7 +51,8 @@ from mimetypes import guess_type
 
 from lpod import ODF_MANIFEST, ODF_STYLES
 from lpod.document import odf_get_document
-from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame, odf_create_frame
+from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
+from lpod.frame import odf_create_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
 from lpod.table import odf_create_table, odf_create_cell, odf_create_row
