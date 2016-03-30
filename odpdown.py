@@ -648,8 +648,15 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree.from_metrics_provider([row], self)
 
     def table_cell(self, content, **flags):
-        text = content.get()[0].get_text()
-        cell = odf_create_cell(text=text, value=text)
+        cell_content = content.get()[0]
+        # For presentations it seems we're dealing with text content anyway. So
+        # we just grab what is inside the cell, wrap it in a paragraph and show
+        # it.
+        para = odf_create_element('text:p')
+        para.append(cell_content)
+
+        cell = odf_create_cell()
+        cell.append(para)
         # TODO header style
         # if flags.get('header'):
         #    cell.set_style('md2odp-TextDoubleEmphasisStyle')

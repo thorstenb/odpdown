@@ -288,6 +288,9 @@ def test_basic_table():
     frame = odf.get()[0]
     tbl = frame.get_table()
     assert len(tbl.get_rows()) == 3
-    assert tbl.get_row_values(0) == ['A', 'B']
-    assert tbl.get_row_values(1) == ['Cell 1', '2']
-    assert tbl.get_row_values(2) == ['Link', 'Cell 4']
+
+    assert tbl.get_row(0).get_text_content() == u'A\nB'
+    assert tbl.get_row(1).get_text_content() == u'Cell 1\n2'
+    assert tbl.get_row(2).get_text_content() == u'Link\nCell 4'
+
+    assert len(tbl.xpath('//text:p/text:a')) == 1
