@@ -648,12 +648,12 @@ class ODFRenderer(mistune.Renderer):
         return ODFPartialTree.from_metrics_provider([row], self)
 
     def table_cell(self, content, **flags):
-        cell_content = content.get()[0]
+        cell_content = content.get()
         # For presentations it seems we're dealing with text content anyway. So
         # we just grab what is inside the cell, wrap it in a paragraph and show
         # it.
         para = odf_create_element('text:p')
-        para.append(cell_content)
+        para.extend(cell_content)
 
         cell = odf_create_cell()
         cell.append(para)

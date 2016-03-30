@@ -281,7 +281,7 @@ def test_basic_table():
 |A      |B
 |-------|-------
 |Cell 1 | 2
-|[Link](http://www.odpdown.test)| Cell 4
+|[Link](http://www.odpdown.test) Foo | Cell 4
 '''.strip()
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
@@ -291,6 +291,6 @@ def test_basic_table():
 
     assert tbl.get_row(0).get_text_content() == u'A\nB'
     assert tbl.get_row(1).get_text_content() == u'Cell 1\n2'
-    assert tbl.get_row(2).get_text_content() == u'Link\nCell 4'
+    assert tbl.get_row(2).get_text_content() == u'Link Foo\nCell 4'
 
     assert len(tbl.xpath('//text:p/text:a')) == 1
