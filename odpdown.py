@@ -48,6 +48,7 @@ import re
 
 from urllib import urlopen
 from mimetypes import guess_type
+from uuid import uuid4
 
 from lpod import ODF_MANIFEST, ODF_STYLES
 from lpod.document import odf_get_document
@@ -63,9 +64,6 @@ from lpod.link import odf_create_link, odf_link
 
 from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
-
-from uuid import uuid4
-hasher = lambda : uuid4().get_hex()
 
 __version__ = '0.4.1'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
@@ -87,6 +85,9 @@ Available master page names in template:
 
 '''.strip()
 
+# helper for unique hashes
+def hasher():
+    return uuid4().get_hex()
 
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name,
@@ -677,7 +678,7 @@ class ODFRenderer(mistune.Renderer):
         fragment_ext = urlparse.urlparse(src)[2].split('.')[-1]
         self.image_entry_id = hasher()
         fragment_name = 'Pictures/%s.%s' % (self.image_entry_id,
-                                              fragment_ext)
+                                            fragment_ext)
         imagedata = urlopen(src).read()
         try:
             if not fragment_ext.endswith('svg'):
