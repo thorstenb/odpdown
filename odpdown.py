@@ -64,6 +64,9 @@ from lpod.link import odf_create_link, odf_link
 from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
 
+from uuid import uuid4
+hasher = lambda : uuid4().get_hex()
+
 __version__ = '0.4.1'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
 __all__ = [
@@ -391,7 +394,6 @@ class ODFFormatter(Formatter):
 
 class ODFRenderer(mistune.Renderer):
     """Render mistune event stream as ODF"""
-    image_prefix = 'odpdown_image_'
 
     def __init__(self,
                  document,
@@ -410,12 +412,6 @@ class ODFRenderer(mistune.Renderer):
         self.formatter = ODFFormatter(style=highlight_style)
         self.document = document
         self.doc_manifest = document.get_part(ODF_MANIFEST)
-        # make sure nested odpdown calls don't end up writing
-        # similarly-named images
-        self.image_entry_id = len([path for path in
-                                   self.doc_manifest.get_paths()
-                                   if path.startswith(
-                                       ODFRenderer.image_prefix)])
         self.break_master = 'Default' if break_master is None else break_master
         self.breakheader_size = ((u'20cm', u'3cm') if breakheader_size is None
                                  else breakheader_size)
@@ -547,7 +543,7 @@ class ODFRenderer(mistune.Renderer):
         if level == 1:
             page = odf_create_draw_page(
                 'page1',
-                name=''.join(e.get_formatted_text() for e in text.get()),
+                name=hasher(),
                 master_page=self.break_master,
                 presentation_page_layout=u'AL3T19')
             page.append(
@@ -562,7 +558,7 @@ class ODFRenderer(mistune.Renderer):
         elif level == 2:
             page = odf_create_draw_page(
                 'page1',
-                name=''.join(e.get_formatted_text() for e in text.get()),
+                name=hasher(),
                 master_page=self.content_master,
                 presentation_page_layout=u'AL3T1')
             page.append(
@@ -679,8 +675,8 @@ class ODFRenderer(mistune.Renderer):
         # embed picture - TODO: optionally just link it
         media_type = guess_type(src)
         fragment_ext = urlparse.urlparse(src)[2].split('.')[-1]
-        fragment_name = 'Pictures/%s%d.%s' % (ODFRenderer.image_prefix,
-                                              self.image_entry_id,
+        self.image_entry_id = hasher()
+        fragment_name = 'Pictures/%s.%s' % (self.image_entry_id,
                                               fragment_ext)
         imagedata = urlopen(src).read()
         try:
@@ -735,7 +731,6 @@ class ODFRenderer(mistune.Renderer):
                                         media_type[0])
         self.document.set_part(fragment_name,
                                imagedata)
-        self.image_entry_id += 1
         return ODFPartialTree.from_metrics_provider([frame], self)
 
     def linebreak(self):
