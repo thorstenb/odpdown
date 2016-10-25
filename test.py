@@ -241,8 +241,8 @@ def test_weird_uris():
 
 '''.strip()
     mkdown.render(markdown)
-    assert u'.svg' == testdoc.get_part(
-        ODF_MANIFEST).get_paths()[0][-4:]
+    assert u'.svg' in [x[-4:] for x in testdoc.get_part(
+        ODF_MANIFEST).get_paths()]
 
 
 @with_setup(setup)
