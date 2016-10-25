@@ -85,9 +85,11 @@ Available master page names in template:
 
 '''.strip()
 
+
 # helper for unique hashes
 def hasher():
     return uuid4().get_hex()
+
 
 # helper for ODFFormatter and ODFRenderer
 def add_style(document, style_family, style_name,
