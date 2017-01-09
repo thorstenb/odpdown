@@ -558,7 +558,7 @@ class ODFRenderer(mistune.Renderer):
                     position=(u'%s' % self.breakheader_position[0],
                               u'%s' % self.breakheader_position[1]),
                     presentation_class=u'title'))
-        elif level == 2:
+        elif (level == 2) or (level == 3):
             page = odf_create_draw_page(
                 'page1',
                 name=hasher(),
