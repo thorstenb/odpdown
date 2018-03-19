@@ -617,8 +617,6 @@ class ODFRenderer(mistune.Renderer):
             paras.append(para)
 
         # pylint: disable=maybe-no-member
-        # para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
-        # para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
         return ODFPartialTree.from_metrics_provider(paras, self)
 
     def list_item(self, text):
