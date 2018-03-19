@@ -54,7 +54,7 @@ from lpod import ODF_MANIFEST, ODF_STYLES
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
-from lpod.list import odf_create_list_item, odf_create_list
+from lpod.list import odf_create_list_item, odf_create_list, odf_list
 from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span
 from lpod.paragraph import odf_create_line_break, odf_create_spaces
@@ -578,25 +578,48 @@ class ODFRenderer(mistune.Renderer):
 
         return ODFPartialTree.from_metrics_provider([page], self)
 
+    def quote_span(self, e):
+        for el in e.get_children():
+            el.set_style(u'md2odp-ParagraphQuoteStyle')
+        return e
+
+
     def block_quote(self, text):
+        paras = []
         para = odf_create_paragraph(style=u'md2odp-ParagraphQuoteStyle')
         span = odf_create_element('text:span')
         span.set_text(u'“')
+        span.set_style(u'md2odp-TextQuoteStyle')
         para.append(span)
 
-        span = odf_create_element('text:span')
+        last_para = para
+        # span = odf_create_element('text:span')
         for elem in text.get():
-            span.append(elem)
-        para.append(span)
+            if isinstance(elem, odf_list):
+                paras.append(para)
+                lst = odf_create_list()
+                for el in map(self.quote_span, elem.get_items()):
+                    lst.append(el)
+                    for ell in el.get_children():
+                        last_para = ell
+                lst.set_style(u'OutlineListStyle')
+                paras.append(lst)
+                para = odf_create_paragraph(style=u'md2odp-ParagraphQuoteStyle')
+            else:
+                para.append(elem)
+                last_para = para
 
         span = odf_create_element('text:span')
+        span.set_style(u'md2odp-TextQuoteStyle')
         span.set_text(u'”')
-        para.append(span)
+        last_para.append(span)
+        if (len(para.get_children())>0):
+            paras.append(para)
 
         # pylint: disable=maybe-no-member
-        para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
-        para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
-        return ODFPartialTree.from_metrics_provider([para], self)
+        # para.set_span(u'md2odp-TextQuoteStyle', regex=u'“')
+        # para.set_span(u'md2odp-TextQuoteStyle', regex=u'”')
+        return ODFPartialTree.from_metrics_provider(paras, self)
 
     def list_item(self, text):
         item = odf_create_list_item()
