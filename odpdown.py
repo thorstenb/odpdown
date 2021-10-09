@@ -677,11 +677,16 @@ class ODFRenderer(mistune.Renderer):
     def image(self, src, title, alt_text):
         # embed picture - TODO: optionally just link it
         media_type = guess_type(src)
-        fragment_ext = urlparse.urlparse(src)[2].split('.')[-1]
+        parse = urlparse.urlparse(src)
+        fragment_ext = parse[2].split('.')[-1]
         self.image_entry_id = hasher()
         fragment_name = 'Pictures/%s.%s' % (self.image_entry_id,
                                             fragment_ext)
-        imagedata = urlopen(src).read()
+        if not parse.scheme and not parse.netloc:
+            imagedata = open(src).read()
+        else:
+            imagedata = urlopen(src).read()
+
         try:
             if not fragment_ext.endswith('svg'):
                 # delay our PIL dependency until really needed
