@@ -1,5 +1,12 @@
 # Advanced Markup
 
+## Basic Support for Tables
+
+| Heading 1                     | Heading 2
+| ----------------------------- | ---------
+| Cell 1                        | Cell 2
+| [Cell 3](http://www.foo.test) | Cell 4
+
 ## Embedded Image Markup
 
 ~~~

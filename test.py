@@ -274,3 +274,23 @@ next line bold**
         'text:style-name') == 'md2odp-TextDoubleEmphasisStyle')
     assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
             'bold text\nnext line bold')
+
+@with_setup(setup)
+def test_basic_table():
+    markdown = '''
+|A      |B
+|-------|-------
+|Cell 1 | 2
+|[Link](http://www.odpdown.test) Foo | Cell 4
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    frame = odf.get()[0]
+    tbl = frame.get_table()
+    assert len(tbl.get_rows()) == 3
+
+    assert tbl.get_row(0).get_text_content() == u'A\nB'
+    assert tbl.get_row(1).get_text_content() == u'Cell 1\n2'
+    assert tbl.get_row(2).get_text_content() == u'Link Foo\nCell 4'
+
+    assert len(tbl.xpath('//text:p/text:a')) == 1

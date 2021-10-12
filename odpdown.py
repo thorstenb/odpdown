@@ -53,8 +53,10 @@ from uuid import uuid4
 from lpod import ODF_MANIFEST, ODF_STYLES
 from lpod.document import odf_get_document
 from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
+from lpod.frame import odf_create_frame
 from lpod.draw_page import odf_create_draw_page, odf_draw_page
 from lpod.list import odf_create_list_item, odf_create_list
+from lpod.table import odf_create_table, odf_create_cell, odf_create_row
 from lpod.style import odf_create_style
 from lpod.paragraph import odf_create_paragraph, odf_span
 from lpod.paragraph import odf_create_line_break, odf_create_spaces
@@ -626,13 +628,38 @@ class ODFRenderer(mistune.Renderer):
             return ODFPartialTree.from_metrics_provider([span], self)
 
     def table(self, header, body):
-        pass
+        tbl = odf_create_table(name=u'Table')
+        tbl.extend_rows(header.get())
+        tbl.extend_rows(body.get())
+
+        # TODO frame positioning, table size, style etc
+        frame = odf_create_frame(
+            style=u'md2odp-ImageStyle',
+            size=self.outline_size,
+            position=self.outline_position
+        )
+        frame.append(tbl)
+        return ODFPartialTree.from_metrics_provider([frame], self)
 
     def table_row(self, content):
-        pass
+        row = odf_create_row()
+        row.set_cells(content.get())
+        return ODFPartialTree.from_metrics_provider([row], self)
 
     def table_cell(self, content, **flags):
-        pass
+        cell_content = content.get()
+        # For presentations it seems we're dealing with text content anyway. So
+        # we just grab what is inside the cell, wrap it in a paragraph and show
+        # it.
+        para = odf_create_element('text:p')
+        para.extend(cell_content)
+
+        cell = odf_create_cell()
+        cell.append(para)
+        # TODO header style
+        # if flags.get('header'):
+        #    cell.set_style('md2odp-TextDoubleEmphasisStyle')
+        return ODFPartialTree.from_metrics_provider([cell], self)
 
     def autolink(self, link, is_email=False):
         text = link
