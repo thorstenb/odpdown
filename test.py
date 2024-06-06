@@ -49,7 +49,7 @@ mkdown = None
 def setup():
     global testdoc, odf_renderer, mkdown
     testdoc = odf_new_document('presentation')
-    odf_renderer = odpdown.ODFRenderer(testdoc,u'Nimbus Mono L')
+    odf_renderer = odpdown.ODFRenderer(testdoc,'Nimbus Mono L')
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
 
@@ -241,7 +241,7 @@ def test_weird_uris():
 
 '''.strip()
     mkdown.render(markdown)
-    assert u'.svg' in [x[-4:] for x in testdoc.get_part(
+    assert '.svg' in [x[-4:] for x in testdoc.get_part(
         ODF_MANIFEST).get_paths()]
 
 
