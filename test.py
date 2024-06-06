@@ -36,9 +36,9 @@
 import odpdown
 import mistune
 import codecs
-from lpod import ODF_MANIFEST
-from lpod.document import odf_new_document
-from lpod.draw_page import odf_draw_page
+from odfdo.const import ODF_MANIFEST
+from odfdo.document import Document
+from odfdo.draw_page import DrawPage
 from nose.tools import with_setup, raises
 
 testdoc = None
@@ -48,7 +48,7 @@ mkdown = None
 
 def setup():
     global testdoc, odf_renderer, mkdown
-    testdoc = odf_new_document('presentation')
+    testdoc = Document('presentation')
     odf_renderer = odpdown.ODFRenderer(testdoc,'Nimbus Mono L')
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
@@ -58,10 +58,10 @@ def test_heading1():
     markdown = '# Heading 1'
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
-    assert isinstance(odf.get()[0], odf_draw_page)
+    assert isinstance(odf.get()[0], DrawPage)
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 1
     assert odf.get()[0].get_elements(
-        'descendant::text:span')[0].get_text() == 'Heading 1'
+        'descendant::text:span')[0].text == 'Heading 1'
 
 
 @with_setup(setup)
@@ -69,10 +69,10 @@ def test_heading2():
     markdown = '## Heading 2'
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
-    assert isinstance(odf.get()[0], odf_draw_page)
+    assert isinstance(odf.get()[0], DrawPage)
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 1
     assert odf.get()[0].get_elements(
-        'descendant::text:span')[0].get_text() == 'Heading 2'
+        'descendant::text:span')[0].text == 'Heading 2'
 
 
 @raises(RuntimeError)
@@ -93,9 +93,9 @@ This is a sample paragraph.
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
-    assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[0].text ==
             'Heading')
-    assert (odf.get()[0].get_elements('descendant::text:span')[2].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[2].text ==
             'This is a sample paragraph.')
 
 
@@ -111,18 +111,18 @@ def test_items_page():
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
-    assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[0].text ==
             'Heading')
     items = odf.get()[0].get_elements('descendant::text:list-item')
     assert len(items) == 3
     assert items[0].get_elements(
-        'descendant::text:span')[0].get_text() == 'this is item one'
+        'descendant::text:span')[0].text == 'this is item one'
     assert items[1].get_elements(
-        'descendant::text:span')[0].get_text() == 'this is item two'
+        'descendant::text:span')[0].text == 'this is item two'
     subitems = items[1].get_elements('descendant::text:list-item')
     assert len(subitems) == 1
     assert subitems[0].get_elements(
-        'descendant::text:span')[0].get_text() == 'and a subitem'
+        'descendant::text:span')[0].text == 'and a subitem'
 
 
 @with_setup(setup)
@@ -140,11 +140,11 @@ def test_empty_list_items_page():
     items = odf.get()[0].get_elements('descendant::text:list-item')
     assert len(items) == 3
     assert items[0].get_elements(
-        'descendant::text:span')[0].get_text() == 'a'
+        'descendant::text:span')[0].text == 'a'
     assert len(items[1].get_elements(
         'descendant::text:span')) == 0
     assert items[2].get_elements(
-        'descendant::text:span')[0].get_text() == 'c'
+        'descendant::text:span')[0].text == 'c'
 
 
 @with_setup(setup)
@@ -158,11 +158,11 @@ There "is" <some> & 'the' other to escape
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
     # mistune splits text at '<', so we get two spans here
-    assert (odf.get()[0].get_elements('descendant::text:span')[2].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[2].text ==
             'There "is" ')
-    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].text ==
             '<some>')
-    assert (odf.get()[0].get_elements('descendant::text:span')[4].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[4].text ==
             ' & \'the\' other to escape')
 
 
@@ -177,10 +177,10 @@ def test_nested_emphasis():
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
     assert (odf.get()[0].get_elements('descendant::text:span')[2].get_attribute(
-        'text:style-name') == 'md2odp-TextDoubleEmphasisStyle')
+        'style') == 'md2odp-TextDoubleEmphasisStyle')
     assert (odf.get()[0].get_elements('descendant::text:span')[3].get_attribute(
-        'text:style-name') == 'md2odp-TextEmphasisStyle')
-    assert (odf.get()[0].get_elements('descendant::text:span')[4].get_text() ==
+        'style') == 'md2odp-TextEmphasisStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[4].text ==
             'triple emphasis')
 
 
@@ -199,7 +199,7 @@ void main()
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
-    assert (odf.get()[0].get_elements('descendant::text:span')[0].get_text() ==
+    assert (odf.get()[0].get_elements('descendant::text:span')[0].text ==
             'Heading')
     spaces = odf.get()[0].get_elements('descendant::text:s')
     assert len(spaces) == 1
@@ -225,6 +225,7 @@ def test_svg1():
     odf = mkdown.render(markdown)
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    print(odf.get()[0].get_elements('descendant::draw:frame')[1].serialize())
     assert odf.get()[0].get_elements('descendant::draw:frame')[1].get_attribute(
         'svg:width') == '22cm'
     assert odf.get()[0].get_elements('descendant::draw:frame')[1].get_attribute(
@@ -256,7 +257,7 @@ fi
 ~~~
 '''.strip()
     odf = mkdown.render(markdown)
-    assert odf.get()[0].get_elements('descendant::text:span')[7].get_text() == ' -eq '
+    assert odf.get()[0].get_elements('descendant::text:span')[8].text == '-eq'
 
 
 @with_setup(setup)
@@ -271,6 +272,6 @@ next line bold**
     assert len(odf.get()) == 1
     assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
     assert (odf.get()[0].get_elements('descendant::text:span')[2].get_attribute(
-        'text:style-name') == 'md2odp-TextDoubleEmphasisStyle')
-    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_text() ==
+        'style') == 'md2odp-TextDoubleEmphasisStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].text ==
             'bold text\nnext line bold')
