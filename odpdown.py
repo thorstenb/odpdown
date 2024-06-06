@@ -35,7 +35,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# use of lpod inspired by Bart Hanssens' odflinkchecker.py,
+# use of odfdo (successor of lpod) inspired by Bart Hanssens' odflinkchecker.py,
 # https://lists.oasis-open.org/archives/opendocument-users/201008/msg00004.html
 # and lpod-python-recipes
 #
@@ -50,17 +50,17 @@ from urllib import urlopen
 from mimetypes import guess_type
 from uuid import uuid4
 
-from lpod import ODF_MANIFEST, ODF_STYLES
-from lpod.document import odf_get_document
-from lpod.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
-from lpod.draw_page import odf_create_draw_page, odf_draw_page
-from lpod.list import odf_create_list_item, odf_create_list
-from lpod.style import odf_create_style
-from lpod.paragraph import odf_create_paragraph, odf_span
-from lpod.paragraph import odf_create_line_break, odf_create_spaces
-from lpod.paragraph import odf_create_tabulation
-from lpod.element import odf_create_element
-from lpod.link import odf_create_link, odf_link
+from odfdo import ODF_MANIFEST, ODF_STYLES
+from odfdo.document import odf_get_document
+from odfdo.frame import odf_create_text_frame, odf_create_image_frame, odf_frame
+from odfdo.draw_page import odf_create_draw_page, odf_draw_page
+from odfdo.list import odf_create_list_item, odf_create_list
+from odfdo.style import odf_create_style
+from odfdo.paragraph import odf_create_paragraph, odf_span
+from odfdo.paragraph import odf_create_line_break, odf_create_spaces
+from odfdo.paragraph import odf_create_tabulation
+from odfdo.element import odf_create_element
+from odfdo.link import odf_create_link, odf_link
 
 from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
