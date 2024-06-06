@@ -1,7 +1,7 @@
--e git+https://github.com/lepture/mistune.git@v0.7.1#egg=mistune
--e git+https://github.com/thorstenb/lpod-python.git#egg=lpod-python
+beautifulsoup4 >= 4.8.2
 cram>=0.6
-pygments>=1.6
+lxml >=3.4.4, <5.0.0
+mistune >0.7.1, <2.0.0
+odfdo>=3.7.7
 pillow>=2.0
-BeautifulSoup
-lxml>=3.4.4
+pygments>=1.6
