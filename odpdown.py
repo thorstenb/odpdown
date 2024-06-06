@@ -35,16 +35,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# use of odfdo (successor of lpod) inspired by Bart Hanssens' odflinkchecker.py,
+# use of odfdo (successor of lpod) inspired by Bart Hanssens'
+# odflinkchecker.py,
 # https://lists.oasis-open.org/archives/opendocument-users/201008/msg00004.html
 # and lpod-python-recipes
 #
-import mistune
 import argparse
-import urllib.parse
 import codecs
-import sys
+import io
+import mistune
 import re
+import sys
+import urllib.parse
 
 from urllib.request import urlopen
 from mimetypes import guess_type
@@ -95,7 +97,7 @@ def add_style(document, style_family, style_name,
               properties, parent=None):
     """Insert global style into given document"""
     style = Style(family=style_family, name=style_name,
-                             display_name=style_name, parent_style=parent)
+                  display_name=style_name, parent_style=parent)
     for elem in properties:
         # pylint: disable=maybe-no-member
         style.set_properties(properties=elem[1], area=elem[0])
@@ -120,6 +122,7 @@ def wrap_spans(odf_elements):
     if para is not None:
         res.append(para)
     return res
+
 
 # buffer regex for tab/space splitting for block code
 _whitespace_re = re.compile('( {2,}|\t)', re.UNICODE)
@@ -272,7 +275,9 @@ class ODFFormatter(Formatter):
             if style['color']:
                 root_elem = curr_elem = Span()
                 # pylint: disable=maybe-no-member
-                curr_elem.set_attribute(name='style', value='md2odp-TColor%s' % style['color'])
+                curr_elem.set_attribute(
+                  name='style',
+                  value='md2odp-TColor%s' % style['color'])
 
             if style['bold']:
                 span = Span()
@@ -508,10 +513,10 @@ class ODFRenderer(mistune.Renderer):
             list_style = content_master_styles[0].get_elements(
                 'style:graphic-properties/text:list-style[1]')[0].clone
             list_style.set_attribute('style:name', 'OutlineListStyle')
-            list_style.family=('presentation')
+            list_style.family = 'presentation'
             document.insert_style(style=list_style, automatic=True)
         else:
-            print('WARNING: no outline list style found for ' \
+            print('WARNING: no outline list style found for '
                   'master page "%s"!' % self.content_master)
 
         # delegate to pygments formatter for their styles
@@ -643,7 +648,7 @@ class ODFRenderer(mistune.Renderer):
 
     def link(self, link, title, content):
         lnk = Link(url=link,
-                   text=content.get()[0].get_text(),
+                   text=content.get()[0].text,
                    title=str(title))
         return ODFPartialTree.from_metrics_provider([lnk], self)
 
@@ -661,7 +666,8 @@ class ODFRenderer(mistune.Renderer):
     def double_emphasis(self, text):
         span = Span()
         # pylint: disable=maybe-no-member
-        span.set_attribute(name='style', value='md2odp-TextDoubleEmphasisStyle')
+        span.set_attribute(name='style',
+                           value='md2odp-TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
         return ODFPartialTree.from_metrics_provider([span], self)
@@ -700,13 +706,12 @@ class ODFRenderer(mistune.Renderer):
             else:
                 # PIL does not really support svg, so let's try heuristics
                 # & find the aspect ratio ourselves
-                from BeautifulSoup import BeautifulSoup
+                from bs4 import BeautifulSoup
 
-                imagefile = BeautifulSoup(imagedata)
+                imagefile = BeautifulSoup(imagedata, features='xml')
                 image_w = float(imagefile.svg['width'])
                 image_h = float(imagefile.svg['height'])
-        except:
-            # unable to extract aspect ratio
+        except Exception:
             image_w, image_h = (100, 100)
 
         image_ratio = image_w / float(image_h)
@@ -733,7 +738,7 @@ class ODFRenderer(mistune.Renderer):
         frame = Frame.image_frame(fragment_name, **args)
 
         if alt_text is not None:
-            frame.set_svg_description(str(alt_text))
+            frame.svg_description = str(alt_text)
 
         self.doc_manifest.add_full_path(fragment_name,
                                         media_type[0])
@@ -794,8 +799,10 @@ def main():
                         ' empty or unknown name')
     args = parser.parse_args()
 
-    markdown = (codecs.getreader("utf-8")(sys.stdin) if args.input_md == '-'
-                else codecs.open(args.input_md, 'r', encoding='utf-8'))
+    if args.input_md == '-':
+        markdown = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+    else:
+        markdown = codecs.open(args.input_md, 'r', encoding='utf-8')
     presentation = Document(args.template_odp)
 
     master_pages = presentation.get_part(ODF_STYLES).get_elements(
@@ -861,7 +868,7 @@ def main():
 
     doc_elems = presentation.body
     if args.page < 0:
-        args.page = len(doc_elems.get_children()) + args.page
+        args.page = len(doc_elems.children) + args.page
 
     pages = mkdown.render(markdown.read())
     if isinstance(pages, ODFPartialTree):
@@ -870,6 +877,7 @@ def main():
             doc_elems.insert(page, position=args.page + index)
 
         presentation.save(target=args.output_odp, pretty=False)
+
 
 if __name__ == "__main__":
     main()
