@@ -809,7 +809,7 @@ def main():
     if args.input_md == '-':
         markdown = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
     else:
-        markdown = codecs.open(args.input_md, 'r', encoding='utf-8')
+        markdown = codecs.open(args.input_md, 'rb', encoding='utf-8')
     presentation = Document(args.template_odp)
 
     master_pages = presentation.get_part(ODF_STYLES).get_elements(
