@@ -276,13 +276,14 @@ class ODFFormatter(Formatter):
                 root_elem = curr_elem = Span()
                 # pylint: disable=maybe-no-member
                 curr_elem.set_attribute(
-                  name='style',
+                  name='text:style-name',
                   value='md2odp-TColor%s' % style['color'])
 
             if style['bold']:
                 span = Span()
                 # pylint: disable=maybe-no-member
-                span.set_attribute(name='style', value='md2odp-TBold')
+                span.set_attribute(name='text:style-name',
+                                   value='md2odp-TBold')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -292,7 +293,8 @@ class ODFFormatter(Formatter):
             if style['italic']:
                 span = Span()
                 # pylint: disable=maybe-no-member
-                span.set_attribute(name='style', value='md2odp-TItalic')
+                span.set_attribute(name='text:style-name',
+                                   value='md2odp-TItalic')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -302,7 +304,8 @@ class ODFFormatter(Formatter):
             if style['underline']:
                 span = Span()
                 # pylint: disable=maybe-no-member
-                span.set_attribute(name='style', value='md2odp-TUnderline')
+                span.set_attribute(name='text:style-name',
+                                   value='md2odp-TUnderline')
                 if root_elem is None:
                     root_elem = curr_elem = span
                 else:
@@ -655,7 +658,8 @@ class ODFRenderer(mistune.Renderer):
     def codespan(self, text):
         span = Span()
         # pylint: disable=maybe-no-member
-        span.set_attribute(name='style', value='md2odp-TextCodeStyle')
+        span.set_attribute(name='text:style-name',
+                           value='md2odp-TextCodeStyle')
         if isinstance(text, str):
             span.text = str(text)
         else:
@@ -666,7 +670,7 @@ class ODFRenderer(mistune.Renderer):
     def double_emphasis(self, text):
         span = Span()
         # pylint: disable=maybe-no-member
-        span.set_attribute(name='style',
+        span.set_attribute(name='text:style-name',
                            value='md2odp-TextDoubleEmphasisStyle')
         for elem in text.get():
             span.append(elem)
@@ -675,7 +679,8 @@ class ODFRenderer(mistune.Renderer):
     def emphasis(self, text):
         span = Span()
         # pylint: disable=maybe-no-member
-        span.set_attribute(name='style', value='md2odp-TextEmphasisStyle')
+        span.set_attribute(name='text:style-name',
+                           value='md2odp-TextEmphasisStyle')
         for elem in text.get():
             span.append(elem)
         return ODFPartialTree.from_metrics_provider([span], self)
