@@ -2,6 +2,8 @@
 """Generate OpenDocument Presentation (odp) files from markdown"""
 
 #
+# Copyright (c) 2025, Thorsten Behrens
+# Copyright (c) 2024, Johannes Grassler
 # Copyright (c) 2014, Thorsten Behrens
 # Copyright (c) 2010, Bart Hanssens
 # All rights reserved.
@@ -66,7 +68,7 @@ from odfdo.link import Link
 from pygments.lexers import get_lexer_by_name
 from pygments.formatter import Formatter
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 __author__ = 'Thorsten Behrens <tbehrens@acm.org>'
 __all__ = [
     'ODFRenderer', 'ODFRenderer',
