@@ -696,7 +696,7 @@ class ODFRenderer(mistune.Renderer):
         fragment_name = 'Pictures/%s.%s' % (self.image_entry_id,
                                             fragment_ext)
         if not parse.scheme and not parse.netloc:
-            imagedata = open(src).read()
+            imagedata = open(src, 'rb').read()
         else:
             imagedata = urlopen(src).read()
 
