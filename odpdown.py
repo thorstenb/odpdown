@@ -419,10 +419,12 @@ class ODFRenderer(mistune.Renderer):
                  outline_size=None,
                  outline_position=None,
                  highlight_style='colorful',
+                 lax_heading_mode=False,
                  autofit_text=True):
         mistune.Renderer.__init__(self)
         self.formatter = ODFFormatter(style=highlight_style)
         self.document = document
+        self.lax_heading_mode = lax_heading_mode
         self.doc_manifest = document.get_part(ODF_MANIFEST)
         self.break_master = 'Default' if break_master is None else break_master
         self.breakheader_size = (('20cm', '3cm') if breakheader_size is None
@@ -568,7 +570,7 @@ class ODFRenderer(mistune.Renderer):
                     position=('%s' % self.breakheader_position[0],
                               '%s' % self.breakheader_position[1]),
                     presentation_class='title'))
-        elif level == 2:
+        elif level == 2 or self.lax_heading_mode:
             page = DrawPage(
                 draw_id='page1',
                 name=hasher(),
@@ -816,6 +818,10 @@ def main():
     parser.add_argument('-c', '--code-font-name', default='Nimbus Mono L',
                         help='Set font name used for code fragments. [Defaults'
                         ' to "Nimbus Mono L"]')
+    parser.add_argument('-l', '--lax-heading-mode', default=False,
+                        action='store_true',
+                        help='Permit all heading levels > 1 to start a new'
+                        ' content slide. Level 1 remains breakout."]')
     parser.add_argument('--break-master', nargs='?', const='', default=None,
                         help='Use this master page for the 1st level'
                         ' headlines. List available ones if called with empty'
@@ -890,7 +896,8 @@ def main():
                                outline_size=outline_size,
                                outline_position=outline_position,
                                autofit_text=args.no_autofit,
-                               highlight_style=args.highlight_style)
+                               highlight_style=args.highlight_style,
+                               lax_heading_mode=args.lax_heading_mode)
     mkdown = mistune.Markdown(renderer=odf_renderer)
 
     doc_elems = presentation.body
