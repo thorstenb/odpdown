@@ -207,6 +207,30 @@ void main()
 
 
 @with_setup(setup)
+def test_block_quote():
+    markdown = '''
+## Heading
+
+Topic for today's class:
+
+> In mathematics and computer science, a higher-order function is a function that does at least one of the following:
+>
+> - takes one or more functions as an input
+> - outputs a function
+'''.strip()
+    odf = mkdown.render(markdown)
+    assert len(odf.get()) == 1
+    assert len(odf.get()[0].get_elements('descendant::draw:frame')) == 2
+    assert (odf.get()[0].get_elements('descendant::text:p')[2].get_attribute(
+        'text:style-name') == 'md2odp-ParagraphQuoteStyle')
+    assert (odf.get()[0].get_elements('descendant::text:span')[3].get_attribute(
+        'text:style-name') == 'md2odp-TextQuoteStyle')
+    assert (odf.get()[0].get_elements('descendant::text:p')[4].get_attribute(
+        'text:style-name') == 'md2odp-ParagraphQuoteStyle')
+    assert len(odf.get()[0].get_elements('descendant::text:list-item')) == 2
+
+
+@with_setup(setup)
 def test_complex():
     # read more complex doc from disk. simply don't crash...
     markdown = codecs.open('cramtest/test.md', 'r', encoding='utf-8').read()

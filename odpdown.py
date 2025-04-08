@@ -588,25 +588,45 @@ class ODFRenderer(mistune.Renderer):
 
         return ODFPartialTree.from_metrics_provider([page], self)
 
+    def quote_span(self, e):
+        for el in e.children:
+            el.style = 'md2odp-ParagraphQuoteStyle'
+        return e
+
     def block_quote(self, text):
+        paras = []
         para = Paragraph(style='md2odp-ParagraphQuoteStyle')
         span = Span()
-        span.text = '“'
-        para.append(span)
-
-        span = Span()
-        for elem in text.get():
-            span.append(elem)
-        para.append(span)
-
-        span = Span()
         span.text = '”'
+        span.set_attribute(name='text:style-name',
+                           value='md2odp-TextQuoteStyle')
         para.append(span)
+
+        last_para = para
+        for elem in text.get():
+            if isinstance(elem, List):
+                paras.append(para)
+                lst = List(style='OutlineListStyle')
+                for el in map(self.quote_span, elem.get_items()):
+                    lst.append(el)
+                    for ell in el.children:
+                        last_para = ell
+                paras.append(lst)
+                para = Paragraph(style='md2odp-ParagraphQuoteStyle')
+            else:
+                para.append(elem)
+                last_para = para
+
+        span = Span('text:span')
+        span.set_attribute(name='text:style-name',
+                           value='md2odp-TextQuoteStyle')
+        span.text = '”'
+        last_para.append(span)
+        if (len(para.children) > 0):
+            paras.append(para)
 
         # pylint: disable=maybe-no-member
-        para.set_span('md2odp-TextQuoteStyle', regex='“')
-        para.set_span('md2odp-TextQuoteStyle', regex='”')
-        return ODFPartialTree.from_metrics_provider([para], self)
+        return ODFPartialTree.from_metrics_provider(paras, self)
 
     def list_item(self, text):
         item = ListItem()

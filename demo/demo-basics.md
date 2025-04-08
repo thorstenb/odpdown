@@ -39,28 +39,32 @@ text.
 ## An alternative way to mark 2nd Level Headers
 
 > This is a blockquote. You can write entire paragraphs
-> like that. Again, this is very similar to how emails
-> are formatted and written.
-> Consider markdown inspired by plain-text email.
+> like that. Of course you can again use _emphasis_, or
+> **strong** emphasis, or even ***double-emphasis*** in
+> your text. But wait, there's more!
 >
-> And some more text in this blockquote, of course you
-> can again use _emphasis_, or **strong** emphasis, or
-> even ***double-emphasis*** in your text. But wait,
-> there's more!
+> In mathematics and computer science, a higher-order
+> function is a function that does at least one of the
+> following:
+>
+> - takes one or more functions as an input
+> - outputs a function
 >
 ~~~
 
 ## An alternative way to mark 2nd Level Headers
 
 > This is a blockquote. You can write entire paragraphs
-> like that. Again, this is very similar to how emails
-> are formatted and written.
-> Consider markdown inspired by plain-text email.
+> like that. Of course you can again use _emphasis_, or
+> **strong** emphasis, or even ***double-emphasis*** in
+> your text. But wait, there's more!
 >
-> And some more text in this blockquote, of course you
-> can again use _emphasis_, or **strong** emphasis, or
-> even ***double-emphasis*** in your text. But wait,
-> there's more!
+> In mathematics and computer science, a higher-order
+> function is a function that does at least one of the
+> following:
+>
+> - takes one or more functions as an input
+> - outputs a function
 >
 
 ## List Markup
