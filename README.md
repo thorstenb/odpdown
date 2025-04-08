@@ -25,17 +25,15 @@ the slides.
 
 Getting ready should be a simple matter of running
 
-    python setup.py install
+    pip install odpdown
 
-from a terminal.
+from a terminal, or when installing from sources / git:
 
-On Windows, run it via the command prompt (Start ‣ Accessories):
-
-    setup.py install
+    pip install .
 
 Alternatively, running `odpdown` directly from the git checkout is
 also possible, provided you've installed the prerequisites (most
-significantly mistune, lpod, pygments, lxml and pillow) manually.
+significantly mistune, odfdo, pygments and pillow) manually.
 
 ## Tests
 

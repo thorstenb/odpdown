@@ -1,9 +1,13 @@
 *~
 *t.err
 *.pyc
+.venv
 .tox/
-dist/
+__pycache__
+*.py[oc]
 build/
+dist/
+wheels/
 MANIFEST
 odpdown.egg-info
 demo/*.pdf

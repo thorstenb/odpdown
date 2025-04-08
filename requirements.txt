@@ -1,6 +1,5 @@
 beautifulsoup4 >= 4.8.2
 cram>=0.6
-lxml >=3.4.4, <5.0.0
 mistune >0.7.1, <2.0.0
 odfdo>=3.7.7
 pillow>=2.0
